@@ -155,3 +155,29 @@ def test_desktop_engine_gates_exclude_phone_only_models():
 
     for engine in ("sherpa-onnx", "llama.cpp", "omnivoice", "kittentts", "mlx-audio"):
         assert phone_ids.isdisjoint(repos_for_engine(engine))
+
+
+def test_commercial_assessment_is_validated_per_model_not_prior_row():
+    """A cleared model may say permitted; unreviewed neighbours may not."""
+    data = registry()
+    cleared = data["models"][0]
+    cleared.update(
+        review_status="cleared", commercial_use=True,
+        reviewed_by="Synthetic test reviewer", reviewed_at="2026-11-23",
+        review_scope="hosted_paid_inference_and_outputs",
+        commercial_inference="permitted", commercial_outputs="permitted",
+    )
+    unreviewed = data["models"][1]
+    unreviewed["commercial_inference"] = "permitted"
+    errors = checker().validate(data, catalog())
+    assert not any(
+        e.startswith(f"{cleared['id']}: unsupported commercial_") for e in errors
+    )
+    assert any(
+        e == f"{unreviewed['id']}: unsupported commercial_inference" for e in errors
+    )
+    unreviewed["commercial_inference"] = "unknown"
+    errors = checker().validate(data, catalog())
+    assert not any(
+        e.startswith(f"{cleared['id']}: unsupported commercial_") for e in errors
+    )
