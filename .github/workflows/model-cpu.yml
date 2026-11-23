@@ -1,0 +1,38 @@
+name: Model CPU inference
+
+on:
+  push:
+    branches: [audit/model-parameters-cpu]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-cpu:
+    name: Real CPU inference (${{ matrix.group }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [sherpa, whisper-small, whisper-large, kitten]
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      OMP_NUM_THREADS: "4"
+      OMNIVOICE_SHERPA_ASR_PROVIDER: cpu
+      OMNIVOICE_SHERPA_ASR_THREADS: "4"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      PYTHONPATH: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.11"
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+      - name: Install locked CPU dependencies
+        run: bash scripts/uv-sync-retry.sh --frozen --no-default-groups --group cpu
+      - name: Run pinned models against speech fixtures
+        run: .venv/bin/python .github/scripts/model_cpu_inference.py "${{ matrix.group }}"

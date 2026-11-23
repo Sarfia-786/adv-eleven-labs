@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches: [main, audit/model-parameters-cpu]
   # The merge queue tests each PR on top of the latest main (and the PRs queued
   # before it) once, instead of every PR re-running CI each time main moves.
   merge_group:
