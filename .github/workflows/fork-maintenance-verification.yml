@@ -60,7 +60,7 @@ jobs:
           subprocess.run([sys.executable, "-m", "pip", "install", *wheels,
                           "fastapi==0.136.3", "httpx==0.28.1", "python-multipart", "numpy", "scipy",
                           "soundfile==0.14.0", "imageio-ffmpeg", "pydub", "psutil",
-                          "python-dotenv", "PyYAML", "requests"], check=True)
+                          "python-dotenv", "PyYAML", "requests", "cryptography"], check=True)
           PY
       - name: Exercise the existing timing and translation regressions
         run: >-
