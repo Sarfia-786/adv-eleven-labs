@@ -229,3 +229,24 @@ def test_deployment_preflight_is_all_or_nothing(reviewed):
     assert result["allowed"] is False
     assert result["models"][0]["allowed"] is True
     assert result["models"][1]["allowed"] is False
+
+
+def test_offline_deployment_cli_denies_unknown_model(tmp_path):
+    """Exercise the real shell entry point and machine-readable exit status."""
+    import subprocess
+
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({"schema_version": 1, "models": [
+        {"model_id": "fixture/not-a-production-model", "revision": "a" * 40,
+         "components": [{"id": "fixture/not-a-production-model",
+                         "revision": "a" * 40, "root": str(tmp_path)}]}
+    ]}), encoding="utf-8")
+    script = Path(__file__).resolve().parents[1] / "scripts/check_hosted_model_licenses.py"
+    proc = subprocess.run(
+        [sys.executable, str(script), "--manifest", str(manifest)],
+        capture_output=True, text=True, check=False,
+    )
+    assert proc.returncode == 1
+    report = json.loads(proc.stdout)
+    assert report["allowed"] is False
+    assert report["blockers"]
