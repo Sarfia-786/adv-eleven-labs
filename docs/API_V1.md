@@ -27,6 +27,12 @@ curl --fail-with-body -H "Authorization: Bearer ${SERVICE_TOKEN}" \
 
 A Free response is `{"api_version":"v1","subject":"user-a","plan":"free","capabilities":["basic_speech"]}`. The sorted capabilities describe subscription policy. The current operation surface is published at `/openapi.json`. An invalid or expired token returns HTTP 401 with `detail.code=invalid_token`. A valid token without the scope returns HTTP 403 with `detail.code=insufficient_scope`. Refresh expired credentials at the issuer. Clients must obtain the appropriate grant before retrying a 403.
 
+## Request IDs
+
+Each hosted HTTP response carries one `X-Request-ID`, including authentication errors, missing routes and server errors. Repo 1 can supply an opaque identifier up to 64 ASCII characters. Start with a letter or digit and use letters, digits, periods, underscores or hyphens thereafter. A missing, invalid or repeated header produces a new 32-character hexadecimal ID. Send only an identifier in this header.
+
+Use the response ID to locate the matching `hosted_request_completed` event in the `uvicorn.error.hosted_requests` logger. Its structured fields are `request_id` and `status_code`. If the server never starts a response, the status field is null. Application code can read the same ID from `request.state.request_id` or the current request context. Authentication, request bodies, URLs and query strings are excluded from this diagnostic event.
+
 ## Tenant-owned pronunciation dictionaries
 
 Repo 1 can save named word or phrase respellings for the signed user. The owner key is the SHA-256 digest of the ASCII JSON encoding of the verified `[iss, sub]` pair with compact separators. A signing-key rotation preserves ownership. A change of issuer creates a separate namespace. The database primary key starts with the owner key. Every lookup and mutation uses it, including list queries.
