@@ -154,8 +154,10 @@ def validate(registry, catalog, source_ids=()):
         if record.get("component_closure") not in {"complete", "incomplete"}:
             errors.append(f"{rid}: invalid component_closure")
         for field in ("commercial_inference", "commercial_outputs"):
-            if record.get(field) not in {"unknown", "restricted"}:
+            if record.get(field) not in ({"unknown", "restricted", "permitted"} if status == "cleared" else {"unknown", "restricted"}):
                 errors.append(f"{rid}: unsupported {field} assessment")
+        if status == "cleared" and (record.get("commercial_inference") != "permitted" or record.get("commercial_outputs") != "permitted"):
+            errors.append(f"{rid}: cleared record needs commercial inference and output review")
         if record.get("data_kind", "production") != "production":
             errors.append(f"{rid}: test/illustrative data is not production evidence")
         phone_only = str(record.get("configured_at", "")).startswith(_PHONE_RECORD_SOURCE)
