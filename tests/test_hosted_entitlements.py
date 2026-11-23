@@ -27,6 +27,7 @@ def client(tmp_path, monkeypatch, signing_key):
         "AUDIENCE": "voice",
         "SERVICE_ID": "repo1",
         "PUBLIC_KEY_FILE": str(path),
+        "PLAN_CLAIM": "plan",
     }.items():
         monkeypatch.setenv("VOICE_API_" + name, value)
     return TestClient(create_app())
@@ -80,14 +81,29 @@ def test_verified_plan(client, signing_key, plan):
         {"sub": " "},
         {"plan": "admin"},
         {"exp": 1},
-        {"exp": int(time.time()) + 601},
-        {"iat": int(time.time()) + 60},
         {"iat": None},
         {"scope": ["entitlements:read"]},
     ],
 )
 def test_invalid_claims(client, signing_key, change):
     assert client.get(PATH, headers=bearer(signing_key, **change)).status_code == 401
+
+
+@pytest.mark.parametrize(("claim", "offset"), [("exp", 601), ("iat", 60)])
+def test_invalid_lifetime(client, signing_key, claim, offset):
+    changes = {claim: int(time.time()) + offset}
+    assert client.get(PATH, headers=bearer(signing_key, **changes)).status_code == 401
+
+
+def test_configured_plan_claim(client, signing_key, monkeypatch):
+    monkeypatch.setenv("VOICE_API_PLAN_CLAIM", "billing_tier")
+    configured_client = TestClient(create_app())
+    assert configured_client.get(PATH, headers=bearer(signing_key)).status_code == 401
+    reply = configured_client.get(
+        PATH, headers=bearer(signing_key, billing_tier="premium")
+    )
+    assert reply.status_code == 200
+    assert reply.json()["plan"] == "premium"
 
 
 def test_signature_scope_and_listener_boundary(client, signing_key):

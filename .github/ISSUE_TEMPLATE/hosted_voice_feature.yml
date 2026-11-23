@@ -1,0 +1,33 @@
+name: Hosted voice implementation task
+description: Implement one Voice API or Studio feature using an existing PR as the example.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Follow [the first implementation PR](https://github.com/Sarfia-786/adv-eleven-labs/pull/3). Link every follow-up in [the implementation tracker](https://github.com/Sarfia-786/adv-eleven-labs/issues/2).
+  - type: input
+    id: reference
+    attributes:
+      label: Which PR should the implementer follow?
+      description: Use the closest completed example from this fork.
+      placeholder: "#3"
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What should the user or API caller be able to do?
+      description: Specify one deliverable, its inputs and observable result. List prerequisite issues, related tasks and the existing files or services to extend.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: How can the next contributor verify the feature?
+      description: Give a test path or command and the expected result. Include allowed, denied and failure cases relevant to the feature.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        In the implementation PR, link this issue and the example PR. Record the commands actually run, results and remaining checks. Add or update the next related issue with a link to your PR so the pattern continues. At each ten-minute checkpoint, push the branch, record the commit SHA and next step on the tracker, and pause.
