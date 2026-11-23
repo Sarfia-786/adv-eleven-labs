@@ -155,3 +155,27 @@ def test_desktop_engine_gates_exclude_phone_only_models():
 
     for engine in ("sherpa-onnx", "llama.cpp", "omnivoice", "kittentts", "mlx-audio"):
         assert phone_ids.isdisjoint(repos_for_engine(engine))
+
+
+@pytest.mark.parametrize("field", ["commercial_inference", "commercial_outputs"])
+def test_commercial_assessment_is_validated_per_model_not_prior_row(field):
+    """Only the unreviewed row should report an unsupported assessment."""
+    data = registry()
+    cleared = data["models"][0]
+    cleared.update(
+        review_status="cleared", commercial_use=True,
+        reviewed_by="Synthetic test reviewer", reviewed_at="2026-11-23",
+        review_scope="hosted_paid_inference_and_outputs",
+        commercial_inference="permitted", commercial_outputs="permitted",
+    )
+    unreviewed = data["models"][1]
+    unreviewed.update(review_status="unreviewed", commercial_use=False,
+                      commercial_inference="unknown", commercial_outputs="unknown")
+    unreviewed[field] = "permitted"
+    errors = checker().validate(data, catalog())
+    assert [e for e in errors if ": unsupported commercial_" in e] == [
+        f"{unreviewed['id']}: unsupported {field} assessment"
+    ]
+    unreviewed[field] = "unknown"
+    errors = checker().validate(data, catalog())
+    assert not any(": unsupported commercial_" in e for e in errors)
