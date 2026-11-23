@@ -2,11 +2,27 @@
 
 The first feature lets Repo 1 retrieve the authenticated user's Free or Premium policy over HTTP. Its example pull request is [#3](https://github.com/Sarfia-786/adv-eleven-labs/pull/3). The tenant-owned persistence work for [issue #4](https://github.com/Sarfia-786/adv-eleven-labs/issues/4) is on `feature/hosted-ownership`. The [tracker](https://github.com/Sarfia-786/adv-eleven-labs/issues/2) records dependencies and checkpoint commits.
 
+## Private audio storage
+
+On `feature/hosted-artifacts`, issue #5 adds authenticated WAV and MP3 upload, download and deletion. Hosted migration `h0002` records tenant ownership, expiry and pending storage operations. The gateway counts streamed bytes, validates audio, and uses the existing safe-path and download-header helpers. Use [the API contract](docs/API_V1.md#private-audio-artifacts) for startup, cleanup and recovery commands.
+
+**146 focused tests passed** on Linux CPU with Python 3.12. The run included SQLite, a disposable PostgreSQL server and an S3-compatible Moto HTTP server using Boto3 1.43.103. It exercised expiry after UUID reuse, cross-tenant access, concurrent and interrupted uploads, retrying failed deletion, and actual WAV/MP3 byte downloads. Ruff and the offline lock check passed. A deployed object store and its access policy still require a deployment smoke test.
+
+To reproduce all 146 checks, set `VOICE_TEST_EMPTY_POSTGRES_URL` to an empty disposable PostgreSQL database. Install Psycopg 3 and the S3 emulator test dependencies (`moto[s3]`, Flask and Flask-Cors) alongside the repository dependencies. The integration tests report a skip when their optional prerequisites are absent.
+
+```sh
+HF_HUB_OFFLINE=1 HF_HUB_CACHE="$(mktemp -d)" python -m pytest -q -rs \
+  tests/test_hosted_artifacts.py tests/test_hosted_ownership.py tests/test_hosted_entitlements.py \
+  tests/test_auth_principal.py tests/test_db_migration_safety.py tests/test_db_schema_reconcile.py \
+  tests/test_list_sort_indexes_migration.py tests/test_content_disposition_unicode.py \
+  backend/tests/test_audio_validation.py tests/test_changelog_fragments.py tests/test_issue_template_labels.py
+```
+
 ## Tenant-owned persistence
 
 Issue #4 adds create, list, read, replace and delete for named pronunciation dictionaries. Each database operation uses the verified issuer and subject. Premium users can save respellings. A user who downgrades can still retrieve and delete their data. The hosted Alembic chain starts at `h0001` with its own version table. Database configuration, startup, backup and rollback are in [API v1](docs/API_V1.md#tenant-owned-pronunciation-dictionaries).
 
-On Linux CPU with Python 3.12 and an empty model cache, **81 focused tests passed**. The tests exercised actual signed HTTP requests, a new app instance opening saved data, identical foreign and unknown resource errors, populated Studio profiles/gallery/history across repeated upgrades, and hosted rollback. Ruff and the offline lock check passed. PostgreSQL DDL can be rendered with the command below. A live PostgreSQL migration and CRUD round trip remain to be verified. Audio generation with these dictionaries is tracked in #14. The next dependent issue is [private audio storage #5](https://github.com/Sarfia-786/adv-eleven-labs/issues/5).
+On Linux CPU with Python 3.12 and an empty model cache, **81 focused tests passed**. The tests exercised actual signed HTTP requests, a new app instance opening saved data, identical foreign and unknown resource errors, populated Studio profiles/gallery/history across repeated upgrades, and hosted rollback. Ruff and the offline lock check passed. PostgreSQL DDL can be rendered with the command below. The private audio checkpoint below also exercised the dictionary migration, CRUD and tenant isolation on a live PostgreSQL server. Audio generation with these dictionaries is tracked in #14. The next dependent issue is [private audio storage #5](https://github.com/Sarfia-786/adv-eleven-labs/issues/5).
 
 ```sh
 HF_HUB_OFFLINE=1 HF_HUB_CACHE="$(mktemp -d)" python -m pytest -q \
