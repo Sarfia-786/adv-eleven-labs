@@ -10,7 +10,7 @@ VoiceStudio Electron installer (macOS / Linux)
 
   curl -fsSL https://voicestudio.sh/install | sh
   curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z
-  curl -fsSL https://voicestudio.sh/install | sh -s -- --main
+  curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main
 
   --version VERSION  Install a published Electron version (optional v prefix)
   --main, --source   Clone main, build Electron, and install the desktop app
@@ -254,7 +254,7 @@ if [ "$MODE" = main ]; then
     node -e 'if (Number(process.versions.node.split(".")[0]) < 22) process.exit(1)' || die 'Node.js 22 or newer is required.'
     printf 'Building and installing Electron from main (this may take several minutes).\n'
     # Never pull into, reset, or build from an existing user checkout.
-    git clone --depth 1 --branch main --single-branch https://github.com/debpalash/VoiceStudio.git "$WORK/source"
+    git clone --depth 1 --branch main --single-branch https://github.com/Sarfia-786/adv-eleven-labs.git "$WORK/source"
     (
         cd "$WORK/source"
         printf 'Source commit: '; git rev-parse HEAD

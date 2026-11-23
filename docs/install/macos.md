@@ -186,7 +186,7 @@ Prerequisites (use a native arm64 terminal on Apple Silicon):
   Electron native helper.
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 node electron/scripts/node-version.mjs
 ```

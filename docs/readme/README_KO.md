@@ -331,7 +331,7 @@ chmod +x VoiceStudio-*-linux-x64.AppImage
 저장소의 FHS 개발 환경에 들어간 뒤 소스에서 실행하세요:
 
 ```sh
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 nix develop .#fhs
 bun run dev
@@ -462,7 +462,7 @@ IPA를 내려받고 서명 및 사이드로드 안내를 따르세요.
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # 특정 릴리스
-curl -fsSL https://voicestudio.sh/install | sh -s -- --main            # 최신 main 빌드
+curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # 최신 main 빌드
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # 데이터는 남기고 앱만 제거
 ```
 
@@ -473,7 +473,7 @@ curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # 데이�
 **소스에서 설치**
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 bun run dev
 ```

@@ -124,7 +124,7 @@ edited. A ZIP download from GitHub is not a checkout either, because it has no g
 against. Make one with:
 
 ```sh
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 ```
 
 Then turn on **Allow source-code repair**, click **Choose folder…** and pick the new `VoiceStudio` folder.

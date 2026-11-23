@@ -330,7 +330,7 @@ chmod +x VoiceStudio-*-linux-x64.AppImage
 Entrez dans l'environnement de développement FHS du référentiel, puis exécutez à partir des sources :
 
 ```sh
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 nix develop .#fhs
 bun run dev
@@ -461,7 +461,7 @@ Installez en utilisant les options ci-dessus. Ensuite, ouvrez **Clonage vocal**,
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # a specific release
-curl -fsSL https://voicestudio.sh/install | sh -s -- --main            # build current main
+curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # build current main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # remove the app, keep your data
 ```
 
@@ -470,7 +470,7 @@ Si `voicestudio.sh` est inaccessible, exécutez le script directement depuis le 
 **De la source**
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 bun run dev
 ```

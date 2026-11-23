@@ -25,7 +25,7 @@ conflicts=('voicestudio')
 # makepkg's GCC LTO objects cannot be consumed by Rust's LLVM linker when
 # linking the locked aws-lc-sys dependency. Keep the toolchains compatible.
 options=('!strip' '!debug' '!lto')
-source=('voicestudio::git+https://github.com/debpalash/VoiceStudio.git#branch=main')
+source=('voicestudio::git+https://github.com/Sarfia-786/adv-eleven-labs.git#branch=main')
 sha256sums=('SKIP')
 
 pkgver() {

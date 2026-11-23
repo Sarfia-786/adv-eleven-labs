@@ -15,7 +15,7 @@ The repository includes a community-maintained Nix flake (`flake.nix`) with deve
 PyTorch, WhisperX and the other wheels `uv` installs expect standard Linux paths such as `/lib64` and `/usr/lib`. The FHS environment (Linux only) provides them and lets `uv` use its own managed CPython:
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 
 nix develop .#fhs   # or: nix run .#fhs

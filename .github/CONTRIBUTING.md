@@ -66,7 +66,7 @@ for Fedora and Arch packages.
 ### Clone & Run
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 bun run dev
 ```
@@ -220,7 +220,7 @@ Open an [issue](https://github.com/debpalash/VoiceStudio/issues/new) with:
 
 ### Pull Requests
 
-1. **Fork** the repo and create a branch from the latest `main`. In a clone of your fork, add this repository once with `git remote add upstream https://github.com/debpalash/VoiceStudio.git`, then `git fetch upstream` and `git switch -c <branch> upstream/main`
+1. **Fork** the repo and create a branch from the latest `main`. In a clone of your fork, add this repository once with `git remote add upstream https://github.com/Sarfia-786/adv-eleven-labs.git`, then `git fetch upstream` and `git switch -c <branch> upstream/main`
 2. **Keep it current with `main`**: merge the latest `main` into your branch right before every push. `main` requires branches to be up to date, so a PR that is behind can't merge and has to run CI again once it's updated
 3. **Keep PRs focused** — one feature or fix per PR. Keep **at most 5 PRs open at a time**; open the next one when one lands. Every PR uses CI resources and gets read before merge
 4. **Prefer user-facing fixes**: bugs with an open issue or a reproducible failure come first. For new meta-tests, CI policy or tooling-only changes, open an issue first so maintainers can say whether they want them
@@ -507,11 +507,7 @@ opener has not signed the CLA (see [Contribution licensing](#contribution-licens
 test-only PR. Docker Hub overview edits still publish through the small
 `dockerhub-description.yml` workflow without rebuilding images.
 
-- **Gallery pin:** a PR that changes the `omnivoice-gallery` submodule must
-  move it forward along the gallery's `main` (`.github/workflows/gallery-pin.yml`).
-  If it fails on a PR that never meant to touch the gallery, the checkout had a
-  stale submodule: run `git submodule update omnivoice-gallery` and drop that
-  change from the commit.
+- **Gallery source:** edit the tracked files in `omnivoice-gallery/` directly.
 - **First CI run from a fork:** a pull request from a fork waits for a
   maintainer to approve it (the `external-pr` environment) before CI starts.
   Branches in this repository start at once.

@@ -229,7 +229,7 @@ command -v uv  >/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 
-[ -d "$VS_DIR/.git" ] || git clone --branch "$VS_TAG" --depth 1 https://github.com/debpalash/VoiceStudio.git "$VS_DIR"
+[ -d "$VS_DIR/.git" ] || git clone --branch "$VS_TAG" --depth 1 https://github.com/Sarfia-786/adv-eleven-labs.git "$VS_DIR"
 cd "$VS_DIR"
 git -c advice.detachedHead=false checkout "$VS_TAG"
 

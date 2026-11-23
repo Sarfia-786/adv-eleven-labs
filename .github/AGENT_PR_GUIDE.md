@@ -12,7 +12,7 @@ source in [CONTRIBUTING.md](CONTRIBUTING.md) or [CLAUDE.md](../CLAUDE.md).
    ```
    ([Contribution licensing](CONTRIBUTING.md#contribution-licensing))
 2. **Start from the latest `main`.** Fetch `main` from
-   the upstream repository (`https://github.com/debpalash/VoiceStudio.git`; in a
+   the upstream repository (`https://github.com/Sarfia-786/adv-eleven-labs.git`; in a
    fork `origin` may be stale), branch from it, and merge it again right before
    you push.
 3. **One focused change.** One fix or feature per pull request; no giant or

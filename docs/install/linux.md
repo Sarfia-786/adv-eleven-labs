@@ -148,7 +148,7 @@ Prerequisites:
 Then, from a clone of the repository:
 
 ```bash
-git clone https://github.com/debpalash/VoiceStudio.git
+git clone https://github.com/Sarfia-786/adv-eleven-labs.git VoiceStudio
 cd VoiceStudio
 node electron/scripts/node-version.mjs
 ```
