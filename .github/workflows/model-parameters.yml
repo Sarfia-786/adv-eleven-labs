@@ -1,0 +1,69 @@
+name: Model parameters (CPU-only inventory)
+
+# Runs on a standard public Ubuntu runner (4 vCPU). This validates catalog,
+# licensing and phone metadata, but never downloads model weights or runs GPU
+# inference. Upload the report before checking the registry against source defaults.
+on:
+  push:
+    branches: [main, audit/model-parameters-cpu-ci]
+    paths:
+      - '.github/workflows/model-parameters.yml'
+      - 'scripts/model_parameter_inventory.py'
+      - 'scripts/check_model_licenses.py'
+      - 'tests/test_model_parameter_inventory.py'
+      - 'backend/config/models.yaml'
+      - 'backend/config/model_licenses.json'
+      - 'mobile/contract/models.source.json'
+      - 'docs/model-parameter-audit.md'
+  pull_request:
+    paths:
+      - '.github/workflows/model-parameters.yml'
+      - 'scripts/model_parameter_inventory.py'
+      - 'scripts/check_model_licenses.py'
+      - 'tests/test_model_parameter_inventory.py'
+      - 'backend/config/models.yaml'
+      - 'backend/config/model_licenses.json'
+      - 'mobile/contract/models.source.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  HF_HUB_OFFLINE: '1'
+  TRANSFORMERS_OFFLINE: '1'
+  CUDA_VISIBLE_DEVICES: ''
+
+jobs:
+  audit:
+    name: Validate every registered model on CPU
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+      - name: Show actual CPU/RAM and isolate the HF cache
+        run: |
+          echo "Logical CPUs: $(nproc)"
+          free -h
+          echo "HF_HUB_CACHE=$RUNNER_TEMP/model-audit-empty-cache" >> "$GITHUB_ENV"
+      - name: Install only the small YAML parsing dependency
+        run: python -m pip install 'pyyaml==6.0.3'
+      - name: Run focused offline inventory tests
+        run: python tests/test_model_parameter_inventory.py -v
+      - name: Generate all-source parameter reports
+        run: python scripts/model_parameter_inventory.py --output-dir "$RUNNER_TEMP/model-parameter-report"
+      - name: Upload JSON and Markdown inventory
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: voice-model-parameters
+          path: ${{ runner.temp }}/model-parameter-report/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Validate full model licence registry (including hardcoded defaults)
+        run: python scripts/check_model_licenses.py
