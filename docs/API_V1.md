@@ -62,6 +62,27 @@ For PostgreSQL, set a `postgresql+psycopg://` connection URL through the deploym
 
 Before upgrading, make a consistent backup. For SQLite use `sqlite3 /absolute/path/hosted.db ".backup '/absolute/path/hosted-before.db'"`. For PostgreSQL use `pg_dump -Fc -f hosted-before.dump` with libpq connection settings for the hosted database. For an application rollback, stop hosted writes and revert the app first. The entitlement-only version can run with the added tables in place. To undo the first schema revision, `uv run alembic -c alembic-hosted.ini downgrade base` drops every hosted dictionary. Restore saved dictionaries from the backup into a fresh database and verify it before switching the service's database URL.
 
+## Reviewing the hosted OpenAPI contract
+
+Repo 1 clients can inspect the hosted listener in [hosted-openapi.json](hosted-openapi.json). The exporter calls `hosted_api.create_app()` with a temporary public verification key and storage disabled. You can run it offline without configuring a service or starting a listener. The Studio and mobile schema has its own exporter in `scripts/export_openapi.py`.
+
+From the repository root, compare the current app with the published contract. The check prints a unified diff to stderr and exits with status 1 on drift. To inspect another branch's published schema, pass its file after `--check`.
+
+```sh
+uv run python scripts/export_hosted_openapi.py --check
+jq '.paths["/api/v1/entitlements"].get | {operationId, security, response: .responses["200"].content["application/json"].schema}' docs/hosted-openapi.json
+jq '.components.securitySchemes.Repo1ServiceToken' docs/hosted-openapi.json
+jq '.paths["/api/v1/pronunciation-dictionaries"].post.requestBody, .components.schemas.DictionaryInput.required' docs/hosted-openapi.json
+```
+
+For an intentional change, regenerate the baseline, inspect the diff for affected clients, and commit it with the route change. Omitting `--output` writes the schema to stdout.
+
+```sh
+uv run python scripts/export_hosted_openapi.py --output docs/hosted-openapi.json
+git diff -- docs/hosted-openapi.json
+uv run python -m pytest -q tests/test_hosted_openapi_contract.py
+```
+
 ## Private audio artifacts
 
 Repo 1 or a worker chooses a fresh UUID for each logical audio result. Call these endpoints with the scoped token for its owner. The gateway streams the bytes from a private directory or S3 bucket. The upload returns a relative, expiring `download_path`. Use that path to retrieve or delete this upload. An old path remains expired if the UUID is reused after cleanup.
