@@ -108,6 +108,7 @@ dependencies = [
     # older alembic silently ignores and then colon-splits C:\ paths /
     # space-splits POSIX paths containing spaces.
     "alembic>=1.16",
+    "sqlalchemy>=2.0,<3",
     # Lightweight English TTS "Turbo" tier — 25-80 MB ONNX model, 8 preset
     # voices (Bella, Jasper, Luna, Bruno, Rosie, Hugo, Kiki, Leo), CPU
     # realtime on any platform. Complements OmniVoice's 2.4 GB multilingual
