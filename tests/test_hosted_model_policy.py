@@ -195,3 +195,37 @@ def test_bundled_production_model_is_denied():
     ], registry=registry, catalogue=[])
     assert decision["allowed"] is False
     assert decision["blockers"]
+
+
+@pytest.mark.parametrize(("field", "value"), [
+    ("commercial_inference", "restricted"),
+    ("commercial_outputs", "unknown"),
+    ("review_status", "unreviewed"),
+    ("component_closure", "incomplete"),
+    ("upstream_access", "gated"),
+    ("documents", []),
+    ("artifacts", []),
+])
+def test_every_required_component_needs_its_own_review(reviewed, field, value):
+    registry, catalogue, components = reviewed
+    registry["models"][1][field] = value  # vocoder, not the top-level TTS model
+    assert not evaluate_paid_inference("fixture/tts", "a" * 40, components,
+                                       registry=registry, catalogue=catalogue)["allowed"]
+    with pytest.raises(HostedModelDenied):
+        require_paid_inference("fixture/tts", "a" * 40, components,
+                               registry=registry, catalogue=catalogue)
+
+
+def test_deployment_preflight_is_all_or_nothing(reviewed):
+    registry, catalogue, components = reviewed
+    manifest = {"schema_version": 1, "models": [
+        {"model_id": "fixture/tts", "revision": "a" * 40,
+         "components": components},
+        {"model_id": "fixture/unreviewed", "revision": "c" * 40,
+         "components": [{"id": "fixture/unreviewed", "revision": "c" * 40,
+                         "root": components[0]["root"]}]},
+    ]}
+    result = preflight_deployment(manifest, registry=registry, catalogue=catalogue)
+    assert result["allowed"] is False
+    assert result["models"][0]["allowed"] is True
+    assert result["models"][1]["allowed"] is False
