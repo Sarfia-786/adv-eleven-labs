@@ -153,6 +153,7 @@ def validate(registry, catalog, source_ids=()):
             errors.append(f"{rid}: central pin missing")
         if record.get("component_closure") not in {"complete", "incomplete"}:
             errors.append(f"{rid}: invalid component_closure")
+        status = record.get("review_status")  # per-record, not prior loop's status
         for field in ("commercial_inference", "commercial_outputs"):
             if record.get(field) not in ({"unknown", "restricted", "permitted"} if status == "cleared" else {"unknown", "restricted"}):
                 errors.append(f"{rid}: unsupported {field} assessment")
