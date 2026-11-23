@@ -138,6 +138,7 @@ dependencies = [
     # (Assumption A1 in RESEARCH.md was checked at execute-time and proved
     # false — `cryptography` is not on the install path today).
     "cryptography>=41",
+    "PyJWT[crypto]>=2.15.0,<3",
     "mcp>=1.28.1,<2",
     # Fast model downloads (FDL plan). huggingface_hub arrives transitively via
     # transformers, but we pin it directly so the Xet fast-download path can't

@@ -1,0 +1,26 @@
+# Voice Engine implementation audit
+
+Baseline `fcd54f2` on the fork's main branch. The classifications below describe the baseline. The hosted service is a separate deployment of FastAPI so desktop loopback trust and machine administration stay on the Studio listener.
+
+| Requirement | Baseline classification | Reuse and remaining work |
+| --- | --- | --- |
+| Local and OpenAI speech | Already implemented and reusable | `generation.py`, `openai_compat.py` and `tts_stream.py` serve direct speech. Route inventory below. |
+| Engine selection and loading | Already implemented and reusable | `backend/config/models.yaml`, `services/model_catalogue.py`, `tts_backend.py`, `model_manager.py` and `gpu_gateway.py` supply adapter selection, warm loading, offload and bounded inference. Inspect the selected adapter before accepting controls. |
+| Hosted API and identity | Missing | `backend/main.py`, `core/auth.py` and `api/dependencies.py` implement desktop, remote consumer and administrator policy. The private deployment guide uses a shared key. Hosted calls need a distinct authenticated subject, scopes, entitlements, atomic usage reservations and owned resources. |
+| Catalog | Partially implemented | `api/routers/gallery.py` manages local imports, `community.py` and the vendored `omnivoice-gallery/manifest.json` describe shared entries, and `archetypes.py` supplies designed voices. Curate permitted previews and apply hosted tier filters, favorites and recent-use ownership. |
+| Clones and profiles | Requires production hardening | `profiles.py`, `services/reference_wav.py`, `services/audio_quality.py` and migrations 0003/0005 cover references, recordings, attestations, updates and deletes. Local profile lookups use profile ID. Add tenant-owned media, bounded validation, consent and deletion across storage. |
+| Expressive controls and pronunciation | Partially implemented | Reuse `expression.py`, `ssml_lite.py`, `services/pronunciation.py`, the pronunciation router and migration 0018. Add hosted dictionaries, capability errors and plan checks. |
+| Word times | Partially implemented | `services/asr_backend.py::forced_align` uses WhisperX and can return original segments when unavailable. Hosted caption output needs explicit timing provenance and alignment against the final export. |
+| Dialogue and dubbing | Partially implemented | `dub_core.py`, `dub_translate.py`, `dub_generate.py`, `dub_export.py` and services `translator.py`, `fit_planner.py`, `dub_mix.py` and `dub_pipeline.py` already ingest, transcribe, translate, fit, mix and export. Add hosted turn/voice binding, per-user project access and final-track timing. |
+| Mastering | Partially implemented | `audio_dsp.py`, `loudness.py`, `longform_render.py` and the export router contain effects, FFmpeg loudnorm and encoding. Add tiered export contracts, final-file measurement and audio fixtures. |
+| Jobs and callbacks | Requires production hardening | `batch.py` and `core/job_queue.py` execute in-process. `core/job_store.py` persists status, and migrations 0010/0011/0017 cover remote attempts and event sequencing. Add tenant-scoped durable claims, scheduling, reservations, recovery and signed webhook delivery. |
+| Persistence | Partially implemented | `core/db.py`, Alembic in `backend/migrations` and local files back the Studio. Hosted ownership queries, private object storage, schema upgrades and deletion need dedicated coverage. |
+| Desktop and browser | Already implemented and reusable | Electron uses TanStack Router in `electron/src/renderer/src/router.tsx`, Query in `app.tsx`, shared API clients and shared store slices. Add hosted account selection, plan-aware workflows and opt-in sync alongside the existing cloud-sync router and services. |
+| Deployment and models | Requires production hardening | `deploy/Dockerfile` builds the service. Compose uses upstream image defaults. Review fork update feeds, source-built API/workers and operational metrics. `services/model_licenses.py` and the model inventory track evidence and reviewed installs. A paid inference gate must verify the actual revision and component terms. |
+| Verification | Partially implemented | `tests/`, `backend/tests/`, Electron Vitest, `tests/fixtures/api_routes.txt` and `.github/workflows/ci.yml` cover the existing application. Hosted cross-tenant, billing, crash recovery, hardware and deployment acceptance require dedicated cases. |
+
+## Voice-producing entry points
+
+The checked-in full method/path inventory is [api_routes.txt](../tests/fixtures/api_routes.txt). Direct synthesis uses `POST /generate`, `POST /v1/audio/speech` and `WS /ws/tts`. Longer renders use `POST /audiobook`, `/audiobook/preview`, `/audiobook/resume/{job_id}` and `/longform/render`. Dubbing uses `POST /dub/generate/{job_id}`, `/dub/preview-segment/{job_id}`, `/batch/enqueue`, `/batch/jobs/{job_id}/retry` and `/engines/sonitranslate/dub`. Also inspect call speech in `/calls/{call_id}/say`, archetype preview/use in `archetypes.py`, and `POST /convert` for voice conversion. Gallery and stored-audio GETs can serve existing recordings. `/api/sfx/generate` produces sound effects.
+
+First deliverable: let Repo 1 read the signed user's entitlement policy. Tenant storage and metering can then use the same authenticated principal before accepting any private audio.
