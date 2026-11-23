@@ -16,7 +16,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from cla_check import GitHub, head_blockers, set_status
+from identity_status import GitHub, head_blockers, set_status
 
 ROOT = Path(__file__).resolve().parents[2]
 STATUS_CONTEXT = "Commit identity policy"

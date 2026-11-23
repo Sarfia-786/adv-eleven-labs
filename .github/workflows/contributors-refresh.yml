@@ -50,7 +50,7 @@ jobs:
             echo "Contributors snapshot is current."
             exit 0
           fi
-          # github-actions[bot] is the CLA- and commit-identity-exempt automation identity.
+          # github-actions[bot] is the automation identity for this scheduled update.
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C "$BRANCH"

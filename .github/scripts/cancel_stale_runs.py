@@ -5,7 +5,7 @@ A merged or closed PR keeps queued and in-progress CI runs that nobody will read
 and that hold runner slots other PRs are waiting for. Two modes:
 
 * ``--pr N``: cancel the unfinished pull-request runs of one closed PR. Runs the
-  close event itself started (CLA recording, for example) are left alone: only
+  close event itself started are left alone: only
   runs created before the PR was closed are cancelled.
 * ``--sweep``: do that for every unfinished pull-request run in the repository
   whose PR is closed (a manual catch-up, or a scheduled safety net).

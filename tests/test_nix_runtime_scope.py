@@ -17,7 +17,7 @@ WORKFLOW = ROOT / '.github/workflows/nix.yml'
 
 
 def _scope(tmp_path: Path, files: Any, *, event: str = 'pull_request',
-           held: bool = False, api_error: bool = False) -> tuple[dict[str, str], str, list[list[str]]]:
+           api_error: bool = False) -> tuple[dict[str, str], str, list[list[str]]]:
     workflow = yaml.safe_load(WORKFLOW.read_text(encoding='utf-8'))
     step = next(step for step in workflow['jobs']['flake']['steps'] if step.get('id') == 'scope')
     commands = tmp_path / 'bin'
@@ -49,7 +49,7 @@ sys.stdout.write(Path(os.environ['FIXTURE_PAYLOAD_FILE']).read_text(encoding='ut
     env = dict(os.environ, PATH=f'{commands}{os.pathsep}{os.environ.get("PATH", "")}',
                EVENT=event, GITHUB_EVENT_NAME=event, GITHUB_REPOSITORY='owner/repo',
                GITHUB_EVENT_PATH=str(event_file), GITHUB_OUTPUT=str(output),
-               GH_TOKEN='offline-fixture', CLA_HOLD='held' if held else 'clear',
+               GH_TOKEN='offline-fixture',
                BASE_SHA='a' * 40, HEAD_SHA='b' * 40,
                FIXTURE_PAYLOAD_FILE=str(payload_file), FIXTURE_REQUESTS=str(requests),
                FIXTURE_API_ERROR=str(api_error).lower())
@@ -107,12 +107,6 @@ def test_nix_scope_failed_api_runs_fully(tmp_path: Path, event: str) -> None:
 def test_nix_scope_manual_and_release_always_run(tmp_path: Path, event: str) -> None:
     values, _, calls = _scope(tmp_path, [], event=event)
     assert values['run'] == 'true'
-    assert calls == []
-
-
-def test_nix_scope_keeps_existing_cla_hold(tmp_path: Path) -> None:
-    values, _, calls = _scope(tmp_path, [{'status': 'modified', 'filename': 'flake.nix'}], held=True)
-    assert values['run'] == 'false'
     assert calls == []
 
 

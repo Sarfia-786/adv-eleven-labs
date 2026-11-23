@@ -8,7 +8,6 @@ import os
 import subprocess
 from pathlib import Path
 
-import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,7 +39,7 @@ ELECTRON_VARS = {"ELECTRON", "SMOKES", "CRAWLER", "NATIVE_PACKAGE", "DESKTOP_UI"
 
 def _gate(**overrides) -> int:
     env = {name: "success" for name in RESULTS}
-    env |= {"RUNTIME_NEEDED": "true", "CHANGES_RESULT": "success", "ELECTRON_NEEDED": "true", "CLA_HOLD": ""}
+    env |= {"RUNTIME_NEEDED": "true", "CHANGES_RESULT": "success", "ELECTRON_NEEDED": "true"}
     env |= overrides
     # `run:` on ubuntu is `bash -e {0}`.
     script = GATE["steps"][0]["run"]
@@ -70,10 +69,9 @@ def test_electron_jobs_may_be_skipped_only_when_detection_said_so():
         assert _gate(**skipped, ELECTRON_NEEDED="false", **{name: "skipped"}) != 0, name
 
 
-@pytest.mark.parametrize("cla", ["", "held"])
-def test_a_documentation_only_change_passes_with_every_job_skipped(cla):
+def test_a_documentation_only_change_passes_with_every_job_skipped():
     skipped = {name: "skipped" for name in RESULTS}
-    assert _gate(**skipped, RUNTIME_NEEDED="false", CLA_HOLD=cla) == 0
+    assert _gate(**skipped, RUNTIME_NEEDED="false") == 0
     # ...but not with a job that ran anyway, nor when detection itself failed.
     assert _gate(**(skipped | {"RELEASE_SMOKE": "success"}), RUNTIME_NEEDED="false") != 0
     assert _gate(**skipped, RUNTIME_NEEDED="false", CHANGES_RESULT="failure") != 0

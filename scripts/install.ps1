@@ -7,7 +7,8 @@ if ($Help) {
 VoiceStudio Electron installer (Windows x64 and ARM64)
   irm https://voicestudio.sh/install.ps1 | iex
   $env:VOICESTUDIO_VERSION='X.Y.Z'; irm https://voicestudio.sh/install.ps1 | iex
-  $env:VOICESTUDIO_INSTALL_MODE='main'; irm https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.ps1 | iex
+  Invoke-WebRequest https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.ps1 -OutFile voicestudio-install.ps1
+  .\voicestudio-install.ps1 -Main
 File usage: .\install.ps1 [-Version X.Y.Z] [-Main | -Source] [-Silent]
 Uninstall: .\install.ps1 -Uninstall (preserves user data)
   $env:VOICESTUDIO_INSTALL_MODE='uninstall'; irm https://voicestudio.sh/install.ps1 | iex

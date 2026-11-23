@@ -132,7 +132,7 @@ VoiceStudio/
 │
 ├── .github/workflows/           ⟵ ci, electron-build, electron-release, docker, security,
 │                                   docs-drift, install-smoke, build-omnivoice-tts,
-│                                   cla, commit-identity, cosyvoice-dependencies
+│                                   commit-identity, cosyvoice-dependencies
 └── .git/
 ```
 

@@ -461,7 +461,8 @@ Zainstaluj, korzystając z powyższych opcji. Następnie otwórz **Klonowanie g�
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # a specific release
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # build current main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # build current main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # remove the app, keep your data
 ```
 
@@ -503,7 +504,7 @@ Aktualizujesz wersję 0.5.3 lub starszą (aplikacja Tauri)? [Zainstaluj nową ap
 | Modele i jakość | [Przewodniki po silniku](../../docs/engines/README.md) · [whisper.cpp ASR](../../docs/engines/whisper-cpp.md) · [Benchmarki](../../docs/benchmarks.md) |
 | Integracje | [CLI](../../docs/install/script.md#terminal-command) · [Lokalny interfejs API](../../docs/speech-platform.md) · [MCP](../../docs/mcp.md) · [Przykłady](../../examples/README.md) |
 | Aplikacje na telefon | [iOS i Android](../../docs/mobile.md) |
-| Rozwój | [Contributing](../../.github/CONTRIBUTING.md) ([podpisz umowę CLA](../../.github/CONTRIBUTING.md#contribution-licensing) przed pierwszym PR) · [Dziennik zmian](../../CHANGELOG.md) · [Zasady podpisywania kodu](../code-signing-policy.md) |
+| Rozwój | [Contributing](../../.github/CONTRIBUTING.md) · [Dziennik zmian](../../CHANGELOG.md) · [Zasady podpisywania kodu](../code-signing-policy.md) |
 
 Umiejętności agentów: `npx skills add debpalash/VoiceStudio` (**voicestudio** do pracy z dźwiękiem, **voicestudio-maintainer** do repozytorium).
 

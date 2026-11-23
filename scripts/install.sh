@@ -10,7 +10,8 @@ VoiceStudio Electron installer (macOS / Linux)
 
   curl -fsSL https://voicestudio.sh/install | sh
   curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z
-  curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main
+  curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+  sh ./voicestudio-install.sh --main
 
   --version VERSION  Install a published Electron version (optional v prefix)
   --main, --source   Clone main, build Electron, and install the desktop app

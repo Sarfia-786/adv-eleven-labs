@@ -461,7 +461,8 @@ iOS / iPadOS 17+ · 預覽版 · 下載模型後可在裝置上離線執行。
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # 安裝指定版本
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # 構建當前 main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # 構建當前 main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # 解除安裝應用，保留資料
 ```
 
@@ -505,7 +506,7 @@ https://github.com/debpalash/VoiceStudio/blob/main/docs/install/agent.md
 | 模型與音質 | [引擎指南](../../docs/engines/README.md) · [whisper.cpp ASR](../../docs/engines/whisper-cpp.md) · [效能基準](../../docs/benchmarks.md) |
 | 整合 | [CLI](../../docs/install/script.md#terminal-command) · [本地 API](../../docs/speech-platform.md) · [MCP](../../docs/mcp.md) · [示例](../../examples/README.md) |
 | 手機應用 | [iOS 與 Android](../../docs/mobile.md) |
-| 開發 | [參與貢獻](../../.github/CONTRIBUTING.md)（首次提交 PR 前請[簽署 CLA](../../.github/CONTRIBUTING.md#contribution-licensing)）· [更新日誌](../../CHANGELOG.md) · [程式碼簽署政策](../code-signing-policy.md) |
+| 開發 | [參與貢獻](../../.github/CONTRIBUTING.md) · [更新日誌](../../CHANGELOG.md) · [程式碼簽署政策](../code-signing-policy.md) |
 
 智慧體技能：`npx skills add debpalash/VoiceStudio`（音訊工作用 **voicestudio**，倉庫維護用 **voicestudio-maintainer**）。
 

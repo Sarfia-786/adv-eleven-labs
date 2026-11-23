@@ -186,10 +186,7 @@ saying "no GPU acceleration detected".
 
 ## Building from source
 
-Use this for development or to run current `main`. The install script's
-`main` mode (`$env:VOICESTUDIO_INSTALL_MODE='main'; irm https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.ps1 | iex`)
-builds and installs a desktop package from `main` without a checkout; see
-[the install script guide](script.md).
+For development, download the PowerShell installer using the [install script guide](script.md), then run `.\voicestudio-install.ps1 -Main` to build and install the current `main`.
 The script uses a short, temporary checkout name to keep native dependency
 paths within MSVC's path limit. If your `TEMP` directory has a long path,
 choose a shorter temporary directory before starting a source build.

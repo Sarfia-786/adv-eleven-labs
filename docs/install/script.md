@@ -12,7 +12,8 @@ irm https://voicestudio.sh/install.ps1 | iex
 $env:VOICESTUDIO_VERSION='X.Y.Z'; irm https://voicestudio.sh/install.ps1 | iex
 # Clear a previous version override before selecting main:
 Remove-Item Env:VOICESTUDIO_VERSION -ErrorAction SilentlyContinue
-$env:VOICESTUDIO_INSTALL_MODE='main'; irm https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.ps1 | iex
+Invoke-WebRequest https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.ps1 -OutFile voicestudio-install.ps1
+.\voicestudio-install.ps1 -Main
 ```
 
 On ARM64 Windows the script installs the native ARM64 build and falls back to the x64 build when a release has none. Windows main builds also need Visual Studio C++ build tools (plus the ARM64 build tools on ARM). The script builds
@@ -27,7 +28,8 @@ curl -fsSL https://voicestudio.sh/install | sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z
 
 # Clone main, build a desktop package, then install it
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main
 ```
 
 `--source` is an alias for `--main`. It cannot be combined with `--version`.

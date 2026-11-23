@@ -461,7 +461,8 @@ Yukarıdaki seçenekleri kullanarak kurulum yapın. Ardından **Ses klonlama**'y
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # a specific release
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # build current main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # build current main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # remove the app, keep your data
 ```
 
@@ -503,7 +504,7 @@ https://github.com/debpalash/VoiceStudio/blob/main/docs/install/agent.md
 | Modeller ve kalite | [Motor kılavuzları](../../docs/engines/README.md) · [whisper.cpp ASR](../../docs/engines/whisper-cpp.md) · [Karşılaştırmalar](../../docs/benchmarks.md) |
 | Entegrasyonlar | [CLI](../../docs/install/script.md#terminal-command) · [Yerel API](../../docs/speech-platform.md) · [MCP](../../docs/mcp.md) · [Örnekler](../../examples/README.md) |
 | Telefon uygulamaları | [iOS ve Android](../../docs/mobile.md) |
-| Geliştirme | [Katkıda bulunuyor](../../.github/CONTRIBUTING.md) ([CLA'yı imzalayın](../../.github/CONTRIBUTING.md#contribution-licensing) ilk PR'ınızdan önce) · [Değişiklik günlüğü](../../CHANGELOG.md) · [Kod imzalama politikası](../code-signing-policy.md) |
+| Geliştirme | [Katkıda bulunuyor](../../.github/CONTRIBUTING.md) · [Değişiklik günlüğü](../../CHANGELOG.md) · [Kod imzalama politikası](../code-signing-policy.md) |
 
 Ajan becerileri: `npx skills add debpalash/VoiceStudio` (ses çalışmaları için **voicestudio**, depo bakımı için **voicestudio-maintainer**).
 

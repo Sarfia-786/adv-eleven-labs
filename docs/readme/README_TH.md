@@ -461,7 +461,8 @@ Install using the options above. จากนั้นเปิด **การ�
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # a specific release
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # build current main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # build current main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # remove the app, keep your data
 ```
 
@@ -503,7 +504,7 @@ https://github.com/debpalash/VoiceStudio/blob/main/docs/install/agent.md
 | โมเดลและคุณภาพ | [คู่มือเครื่องยนต์](../../docs/engines/README.md) · [whisper.cpp ASR](../../docs/engines/whisper-cpp.md) · [เกณฑ์มาตรฐาน](../../docs/benchmarks.md) |
 | การเชื่อมต่อกับเครื่องมืออื่น | [CLI](../../docs/install/script.md#terminal-command) · [API ท้องถิ่น](../../docs/speech-platform.md) · [MCP](../../docs/mcp.md) · [ตัวอย่าง](../../examples/README.md) |
 | แอปบนโทรศัพท์ | [iOS และ Android](../../docs/mobile.md) |
-| การพัฒนา | [การสนับสนุน](../../.github/CONTRIBUTING.md) ([ลงนาม CLA](../../.github/CONTRIBUTING.md#contribution-licensing) ก่อน PR ครั้งแรกของคุณ) · [บันทึกการเปลี่ยนแปลง](../../CHANGELOG.md) · [นโยบายการลงนามโค้ด](../code-signing-policy.md) |
+| การพัฒนา | [การสนับสนุน](../../.github/CONTRIBUTING.md) · [บันทึกการเปลี่ยนแปลง](../../CHANGELOG.md) · [นโยบายการลงนามโค้ด](../code-signing-policy.md) |
 
 ทักษะสำหรับเอเจนต์: `npx skills add debpalash/VoiceStudio` (**voicestudio** สำหรับงานเสียง และ **voicestudio-maintainer** สำหรับดูแลคลังโค้ด)
 

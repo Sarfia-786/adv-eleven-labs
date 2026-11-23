@@ -462,7 +462,8 @@ IPA をダウンロードし、署名とサイドロードの手順に従って�
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # 特定のリリース
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # 最新の main をビルド
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # 最新の main をビルド
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # データを残してアプリを削除
 ```
 
@@ -506,7 +507,7 @@ https://github.com/debpalash/VoiceStudio/blob/main/docs/install/agent.md
 | モデルと音質 | [エンジンガイド](../../docs/engines/README.md) · [whisper.cpp ASR](../../docs/engines/whisper-cpp.md) · [ベンチマーク](../../docs/benchmarks.md) |
 | 連携 | [CLI](../../docs/install/script.md#terminal-command) · [ローカル API](../../docs/speech-platform.md) · [MCP](../../docs/mcp.md) · [サンプル](../../examples/README.md) |
 | スマートフォンアプリ | [iOS と Android](../../docs/mobile.md) |
-| 開発 | [コントリビューション](../../.github/CONTRIBUTING.md)（初めての PR の前に [CLA への署名](../../.github/CONTRIBUTING.md#contribution-licensing)が必要です）· [変更履歴](../../CHANGELOG.md) · [コード署名ポリシー](../code-signing-policy.md) |
+| 開発 | [コントリビューション](../../.github/CONTRIBUTING.md) · [変更履歴](../../CHANGELOG.md) · [コード署名ポリシー](../code-signing-policy.md) |
 
 エージェントスキル：`npx skills add debpalash/VoiceStudio`（音声作業には **voicestudio**、リポジトリのメンテナンスには **voicestudio-maintainer**）。
 

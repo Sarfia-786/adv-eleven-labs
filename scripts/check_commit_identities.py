@@ -15,8 +15,7 @@ Checks every commit's author and committer name/email plus each
   Code" or "Cursor Agent"), any agent name in a trailer, or an agent
   attribution line ("Generated with ...", session or share links) in the
   commit message or, with ``--event``, the pull request description. Agent
-  identities live in ``.github/scripts/agent_identities.py``, shared with the
-  CLA check. Commits carry
+  identities live in ``.github/scripts/agent_identities.py``. Commits carry
   the git identity of the person submitting them and nobody else's; human
   co-authors are allowed.
 

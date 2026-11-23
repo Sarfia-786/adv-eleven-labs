@@ -461,7 +461,8 @@ Installez en utilisant les options ci-dessus. Ensuite, ouvrez **Clonage vocal**,
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # a specific release
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # build current main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # build current main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # remove the app, keep your data
 ```
 
@@ -503,7 +504,7 @@ Vous effectuez une mise à niveau à partir de la version 0.5.3 ou antérieure (
 | Modèles & qualité | [Guides du moteur](../../docs/engines/README.md) · [whisper.cpp ASR](../../docs/engines/whisper-cpp.md) · [Benchmarks](../../docs/benchmarks.md) |
 | Intégrations | [CLI](../../docs/install/script.md#terminal-command) · [API locale](../../docs/speech-platform.md) · [MCP](../../docs/mcp.md) · [Exemples](../../examples/README.md) |
 | Applications téléphoniques | [iOS et Android](../../docs/mobile.md) |
-| Développement | [Contribuer](../../.github/CONTRIBUTING.md) ([signez le CLA](../../.github/CONTRIBUTING.md#contribution-licensing) avant votre premier PR) · [Changelog](../../CHANGELOG.md) · [Politique de signature du code](../code-signing-policy.md) |
+| Développement | [Contribuer](../../.github/CONTRIBUTING.md) · [Changelog](../../CHANGELOG.md) · [Politique de signature du code](../code-signing-policy.md) |
 
 Compétences pour les agents : `npx skills add debpalash/VoiceStudio` (**voicestudio** pour le travail audio, **voicestudio-maintainer** pour le dépôt).
 
