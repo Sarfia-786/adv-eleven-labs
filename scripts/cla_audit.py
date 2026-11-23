@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Audit required CLA signatures and contributor provenance at HEAD.
+"""Read-only audit of historical VoiceStudio signatures and contributor provenance.
 
 Blames every tracked text file at HEAD (excluding submodules), credits each line to its commit's
 author and co-authors, maps them to GitHub accounts, and compares the result
-with the signature store that .github/scripts/cla_check.py writes to the
-`cla-signatures` branch.
+with the upstream signature archive on the `cla-signatures` branch.
 
     git fetch origin cla-signatures
     GH_TOKEN=... python scripts/cla_audit.py               # Markdown report
@@ -22,7 +21,7 @@ Blame follows moves within a file only, so code copied between files is
 credited to whoever moved it, and squash commits that fold in other people's
 pull requests are listed separately for manual review.
 
-Configured account-ID exemptions use the existing PR checker's policy. An
+Account-ID exemptions follow the policy used to create the archive. An
 exempt submitter credited through a tool/placeholder identity still retains
 their provenance-review row, without being labelled as missing a required
 signature. JSON distinguishes actual signature presence, signing requirement
@@ -37,7 +36,6 @@ import json
 import os
 import re
 import subprocess
-import sys
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -46,12 +44,20 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 SLUG = "debpalash/VoiceStudio"
 
-_spec = importlib.util.spec_from_file_location("cla_check", REPO / ".github" / "scripts" / "cla_check.py")
-cla = importlib.util.module_from_spec(_spec)
-sys.modules["cla_check"] = cla
-_spec.loader.exec_module(cla)
+_spec = importlib.util.spec_from_file_location("agent_identities", REPO / ".github" / "scripts" / "agent_identities.py")
+agent_ids = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(agent_ids)
 
-SIGNATURES = f"origin/{cla.SIGNATURE_BRANCH}:{cla.SIGNATURE_PATH}"
+SIGNATURE_BRANCH = "cla-signatures"
+SIGNATURES = f"origin/{SIGNATURE_BRANCH}:signatures/v1.0/cla.json"
+MAINTAINER_IDS = {4178343}
+BOT_IDS = {49699333, 41898282}
+TOOL_EMAILS = re.compile(
+    rf"{agent_ids.AGENT_EMAILS.pattern}|^\d+\+[^@]*\[bot\]@users\.noreply\.github\.com$",
+    re.I,
+)
+NOREPLY = re.compile(r"^(?:(\d+)\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com$", re.I)
+CO_AUTHOR = re.compile(r"^co-authored-by:\s*(.*?)\s*<([^>]*)>\s*$", re.I | re.M)
 BINARY = re.compile(r"\.(lock|png|jpe?g|gif|webp|ico|icns|svg|wav|mp3|flac|ogg|woff2?|ttf|pdf|onnx|bin)$", re.I)
 # Identities that do not name the person who submitted the work: the checker's
 # AI-tool list plus placeholder identities, credited to whoever opened the PR.
@@ -59,7 +65,7 @@ PLACEHOLDER = re.compile(r"^(test@local|you@example\.com|)$|\.local$", re.I)
 
 
 def is_agent(email: str) -> bool:
-    return bool(cla.TOOL_EMAILS.match(email) or PLACEHOLDER.search(email))
+    return bool(TOOL_EMAILS.match(email) or PLACEHOLDER.search(email))
 
 
 FOLDS_IN = re.compile(r"\bsupersed", re.I)
@@ -149,7 +155,7 @@ def account_for(email: str, commit: str | None) -> tuple[str | None, int | None,
     """
     if is_agent(email):
         return None, None, "agent"
-    if (match := cla.NOREPLY.match(email)) and match.group(1):
+    if (match := NOREPLY.match(email)) and match.group(1):
         return match.group(2), int(match.group(1)), "noreply"
     if not commit:
         return None, None, "unresolved"
@@ -178,7 +184,7 @@ def names_to_logins() -> dict[str, tuple[str, int]]:
     names: dict[str, tuple[str, int]] = {}
     log = git("log", "--format=%aN <%aE>%n%(trailers:key=Co-authored-by,valueonly)")
     for match in re.finditer(r"^(.+?) <([^>]+)>$", log, re.M):
-        noreply = cla.NOREPLY.match(match.group(2))
+        noreply = NOREPLY.match(match.group(2))
         if noreply and noreply.group(1) and not is_agent(match.group(2).lower()):
             names.setdefault(match.group(1).strip().lower(), (noreply.group(2), int(noreply.group(1))))
     return names
@@ -189,7 +195,7 @@ def signed_ids(allow_missing: bool) -> set[int]:
     if result.returncode != 0:
         if allow_missing:
             return set()
-        raise SystemExit(f"{SIGNATURES} not found. Run `git fetch origin {cla.SIGNATURE_BRANCH}`, "
+        raise SystemExit(f"{SIGNATURES} not found. Run `git fetch origin {SIGNATURE_BRANCH}`, "
                          "or pass --no-signatures to report everyone.")
     return {int(s["id"]) for s in json.loads(result.stdout)["signatures"]}
 
@@ -200,9 +206,9 @@ def credit_lines(blamed: collections.Counter, messages: dict[str, str]) -> colle
     for (email, name, commit, path), n in blamed.items():
         credits[(email, name, commit, path)] += n
         # Each co-author once per commit, however often a trailer repeats.
-        co_emails = {co["email"].lower(): co["name"] for co in cla.co_authors(messages.get(commit, ""))}
+        co_emails = {email.lower(): name for name, email in CO_AUTHOR.findall(messages.get(commit, ""))}
         for co_email, co_name in co_emails.items():
-            if not cla.TOOL_EMAILS.match(co_email) and co_email != email:
+            if not TOOL_EMAILS.match(co_email) and co_email != email:
                 credits[(co_email, co_name, commit, path)] += n
     return credits
 
@@ -226,11 +232,11 @@ def attribute(credits: collections.Counter, accounts: dict, submitters: dict, na
             notes.add(f"submitted by @{submitter} in a PR" if submitter else NOTES["unresolved"])
         if not account_id and (guess := names.get((name or "").strip().lower())):
             notes.add(f"same display name as @{guess[0]}; confirm")  # a hint only, never a match
-        if account_id in cla.MAINTAINER_IDS and source in ("noreply", "api"):
+        if account_id in MAINTAINER_IDS and source in ("noreply", "api"):
             if FOLDS_IN.search(messages.get(commit, "")):
                 folded[commit] += n
             continue
-        if account_id in cla.BOT_IDS:
+        if account_id in BOT_IDS:
             continue
         key = str(account_id) if account_id else (email or name or "?")
         person = people[key]
@@ -250,7 +256,7 @@ def contributor_status(person: dict, signed: set[int]) -> dict[str, bool]:
     account_id = person["id"]
     return {
         "signature_present": account_id in signed,
-        "signing_required": account_id is None or not cla.exempt(cla.Person(person["login"] or "", account_id)),
+        "signing_required": account_id not in MAINTAINER_IDS and account_id not in BOT_IDS,
         "provenance_review_required": bool(person["notes"]),
     }
 

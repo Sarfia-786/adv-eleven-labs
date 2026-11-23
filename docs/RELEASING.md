@@ -123,23 +123,8 @@ version only after validation.
    reporters credited.
    In `docs/install/issue-tracker.md`, change `Fixed on main` rows to `Fixed in release` and update the release named at the top.
 5. Run `uv run pytest tests/test_app_version.py tests/test_changelog_style.py -q`.
-6. Audit contributor agreements: `git fetch origin cla-signatures`, then
-   `GH_TOKEN=... python scripts/cla_audit.py`. Follow up with each unsigned
-   contributor it lists, asking them to sign `.github/CLA-1.0.md` (or their
-   employer the Corporate CLA). This step applies once the CLA workflow and
-   `scripts/cla_audit.py` are on `main`. The audit aborts if Git cannot read
-   any file’s history; restore access to missing objects and rerun before
-   treating its contributor list as complete.
-   The unsigned count includes only contributors required to sign by the existing
-   checker. Exempt account IDs attributed through tool/placeholder commits keep
-   a separate provenance-review row; no signature is invented for them. JSON
-   reports `signature_present`, `signing_required` and
-   `provenance_review_required`; legacy `signed` means actual signature-store
-   presence only. Review other unsigned and unresolved identities independently.
-   A successful audit exit means the inventory completed, not that every
-   signature or provenance question is resolved.
-7. Confirm the version matches the intended tag.
-8. [Rehearse the release](#rehearse-a-release) from the commit you will tag.
+6. Confirm the version matches the intended tag.
+7. [Rehearse the release](#rehearse-a-release) from the commit you will tag.
 
 ## Rehearse a release
 
@@ -433,10 +418,10 @@ Do not move or recreate an existing tag.
 
 - The `main` ruleset requires branches to be up to date before merging. Merge current `main` into a stale PR and wait for its checks again; green checks against an older base do not prove the combined result.
 - **Auto-merge** is on: `gh pr merge N --auto --merge` merges a PR once its required checks pass.
-- The required aggregate CI status is **Tests (backend + frontend)**, which waits for every job in `ci.yml` (Python tests, platform smokes, Electron tests, renderer smokes, UI crawler, Desktop UI, Linux native package, installer contracts and the release smoke). A failure in any of them blocks the merge without listing each job in the ruleset. **CLA gate**, **Commit identities**, **CLA** and **Commit identity policy** are also required.
+- The required aggregate CI status is **Tests (backend + frontend)**, which waits for every job in `ci.yml` (Python tests, platform smokes, Electron tests, renderer smokes, UI crawler, Desktop UI, Linux native package, installer contracts and the release smoke). A failure in any of them blocks the merge without listing each job in the ruleset. The recommended protection rules also require **Commit identities** and **Commit identity policy**.
 - A PR's CI tests it merged with `main` as `main` stood when the run started. The up-to-date requirement prevents accepting that result after the base changes. After every merge, wait for that exact `main` commit's post-merge workflows; when a run fails, fixing `main` comes before the next merge.
 
-Moving the repository to an organization would make the queue available, and the workflow support for it stays in place. The workflows are ready: `ci.yml` runs on `merge_group`, and `merge-queue-checks.yml` reports the PR-level required checks ("CLA gate", "Commit identities", "CLA", "Commit identity policy") on the queue's commit, because they cannot run there. `tests/test_merge_queue.py` keeps those names equal to the ruleset's required list; change both together.
+Moving the repository to an organization would make the queue available, and the workflow support for it stays in place. The workflows are ready: `ci.yml` runs on `merge_group`, and `merge-queue-checks.yml` reports the PR-level required checks ("Commit identities" and "Commit identity policy") on the queue's commit, because they cannot run there. `tests/test_merge_queue.py` keeps those names equal to the ruleset's required list; change both together.
 
 On the queue commit, `ci.yml` compares the commit with its base to decide the documentation-only and Electron scopes, as it does for a pull request. The pass cache (see `.github/CONTRIBUTING.md` → Quality gates) lets a queued job skip when its inputs match a green run on `main`, so jobs whose inputs the queued pull requests did not touch do not run again. Pushes to `main` always run in full.
 

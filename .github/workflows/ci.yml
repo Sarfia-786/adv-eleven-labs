@@ -69,10 +69,7 @@ jobs:
       pull-requests: read
     outputs:
       electron: ${{ steps.detect.outputs.electron }}
-      # runtime is also false while the opener has not signed the CLA (cla: held);
-      # the CLA check re-runs this run once they sign.
       runtime: ${{ steps.scope.outputs.runtime }}
-      cla: ${{ steps.scope.outputs.cla }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -516,7 +513,6 @@ jobs:
     timeout-minutes: 5
     env:
       RUNTIME_NEEDED: ${{ needs.changes.outputs.runtime }}
-      CLA_HOLD: ${{ needs.changes.outputs.cla }}
       CHANGES_RESULT: ${{ needs.changes.result }}
       INSTALLER: ${{ needs.installer.result }}
       PYTHON: ${{ needs.test-python.result }}
@@ -539,12 +535,7 @@ jobs:
             for result in "${runtime_jobs[@]}" "${electron_jobs[@]}"; do
               [ "$result" = skipped ] || exit 1
             done
-            if [ "${CLA_HOLD:-}" = held ]; then
-              # Merging still needs the CLA status, and main's CI runs everything after the merge.
-              echo "CLA not signed yet: runtime CI skipped. Signing re-runs it automatically."
-            else
-              echo "Documentation/test-only change: runtime CI skipped."
-            fi
+            echo "Documentation/test-only change: runtime CI skipped."
             exit 0
           fi
           for result in "${runtime_jobs[@]}"; do

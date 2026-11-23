@@ -3,66 +3,16 @@
 GitHub stores these settings outside the repository, so no file or CI check can
 enforce them. Apply them once as a repository admin, then re-check them after
 changing workflow or job names. The `gh api` commands below assume an
-authenticated `gh` with admin access to `debpalash/VoiceStudio`.
-
-## Rolling out the CLA check
-
-Do these in order, after the pull request that adds `.github/workflows/cla.yml`
-is merged:
-
-1. Create the labels `cla` (signing issues), `cla-override` (maintainer review)
-   and `cla-signed`: `gh label create cla`, `gh label create cla-override` and
-   `gh label create cla-signed`. The check adds and removes `cla-signed` itself,
-   so it is on a pull request only while signatures clear it, not on one cleared
-   by `cla-override` or by exemptions alone. Do not apply it by hand or require
-   it: the `CLA` status is the merge gate. Pull requests it clears also get a
-   comment linking the agreement and each signature.
-2. Open the public signing issue, label it `cla`, and pin it.
-3. Comment `recheck` on each open pull request, so it gets a `CLA` status.
-   Pull requests opened before these workflows existed also need native
-   `Commit identities` and `CLA gate` runs, plus `Commit identity policy`: merge current `main` into them
-   (the merge protocol asks for that anyway), or close and reopen them. A
-   comment-triggered CLA run updates the signature status but does not satisfy
-   the native required job.
-4. Then apply the `main` ruleset below. A required check that never reported
-   blocks the merge with "Expected — waiting for status".
-5. Apply the `cla-signatures` ruleset once the first signature creates the
-   branch, or before; the ruleset can exist first.
-
-To re-run the check on every open pull request, for example after changing its
-label or comment, run the **CLA backfill** workflow from `main`:
-`gh workflow run cla-backfill.yml --ref main`. It is safe to run again. Any pull
-request it lists as failed stays pending until you comment `recheck` on it.
-
-When you fold other people's pull requests into one, write `Supersedes #N` in
-the description: the check then asks their authors to sign too.
+authenticated `gh` with admin access to the repository named in the command.
 
 ## Ruleset: `main`
 
-Requires a pull request, the backend/frontend test job, the commit-identity
-workflow and its privileged policy status, the CLA workflow job and its signature status, and
-blocks force-push and deletion. Without the pull request rule, a direct push
-whose commit already carries passing checks would be accepted. The rule needs
-no approving review, because `@debpalash` is the only maintainer and GitHub
-does not let authors approve their own pull requests.
+The example ruleset requires a pull request, the aggregate CI result and the
+commit identity checks. It also prevents branch deletion and force pushes.
 
-Each CLA recheck marks the head pending before looking up contributors and
-signatures. Once GitHub accepts that transition, later lookup failures leave it
-pending instead of retaining an older approval. Failed lookups of superseded
-PRs are not treated as absent contributors. Status-write failures fail the
-required `CLA gate` job even if GitHub cannot replace an older `CLA` status.
-Rerun that failed pull-request workflow after GitHub recovers; an issue-comment
-run cannot replace its native check. Both checks must pass before merging.
-
-Commit statuses belong to a SHA, not a particular PR. Both eligibility checkers therefore
-reject every head shared by multiple open PRs, including CLA maintainer overrides;
-one PR cannot overwrite another's obligations with a passing result. It scans
-all open PRs, fails closed on listing errors or the 1,000-PR safety cap, and
-checks again before normal success. Closing a duplicate re-evaluates CLA for a remaining
-PR at that SHA. If a duplicate instead moves to another commit, comment `recheck`
-on the surviving old-head PR. After removing duplicates, rerun the survivor's
-trusted identity workflow: duplicate heads leave its status blocked until that
-fresh evaluation succeeds, so a sibling's description result is not reused.
+GitHub attaches commit statuses to a SHA. The identity check requires each open
+pull request to have a unique head and checks again before publishing a result.
+After closing a duplicate, rerun the surviving pull request’s identity workflow.
 
 These checks are asynchronous, not an atomic lock on GitHub metadata at merge
 time. Wait for the newest head and metadata checks after edits, including
@@ -86,28 +36,16 @@ The `context` values must match the check names shown on a pull request:
   metadata and checks the head/base/description again before publishing. A
   stale event cannot approve a newer head, and the policy checkout must match
   the current base SHA; synchronize the PR with `main` to obtain a fresh run.
-- `CLA gate`: the native job in `.github/workflows/cla.yml`, required from
-  GitHub Actions. Pull-request events run this job even when an API call fails,
-  so rejected status writes cannot leave the merge gate green. It also holds a
-  pull request whose opener has not signed: it converts it to a draft and, once
-  they sign, marks it ready and re-runs the CI that skipped. Its `GITHUB_TOKEN`
-  does this with `pull-requests: write` and `actions: write`; no setting or
-  extra token is needed.
-- `CLA`: the commit status that `.github/scripts/cla_check.py` sets on the
-  pull request's head commit. It checks signature eligibility; the native job
-  alone can succeed while contributors still need to sign. Require both.
-
 GitHub evaluates native jobs triggered by `pull_request_target` as required
 checks; `issue_comment` jobs are not eligible. See [GitHub's required-check
 troubleshooting guide](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#checks-from-some-workflow-jobs-are-not-evaluated).
 
 `integration_id` 15368 is GitHub Actions, so only workflow runs can satisfy the
-native checks. The `CLA` and `Commit identity policy` entries omit it, so the
-statuses count whichever token the trusted workflows use. `strict_required_status_checks_policy` requires branches to be up
+native checks. The `Commit identity policy` entry omits it so the status can be published by the trusted identity workflow. `strict_required_status_checks_policy` requires branches to be up
 to date with `main` before merging.
 
 ```bash
-gh api --method POST repos/debpalash/VoiceStudio/rulesets --input - <<'JSON'
+gh api --method POST 'repos/{owner}/{repo}/rulesets' --input - <<'JSON'
 {
   "name": "main",
   "target": "branch",
@@ -136,9 +74,7 @@ gh api --method POST repos/debpalash/VoiceStudio/rulesets --input - <<'JSON'
         "required_status_checks": [
           { "context": "Tests (backend + frontend)", "integration_id": 15368 },
           { "context": "Commit identities", "integration_id": 15368 },
-          { "context": "Commit identity policy" },
-          { "context": "CLA gate", "integration_id": 15368 },
-          { "context": "CLA" }
+          { "context": "Commit identity policy" }
         ]
       }
     }
@@ -149,8 +85,7 @@ JSON
 
 The bypass lets repository admins merge a pull request whose checks are not
 green, for example to land an urgent fix, but never to push to `main` directly.
-For the CLA, prefer the `cla-override` label: it records that a maintainer
-reviewed the pull request by hand. Remove the bypass entry for a stricter
+Remove the bypass entry for a stricter
 setup. Do not enable "Require review from
 Code Owners" while `@debpalash` is the only code owner, because GitHub does not
 let authors approve their own pull requests.
@@ -159,33 +94,8 @@ UI: **Settings → Rules → Rulesets → New ruleset → New branch ruleset**. 
 target to the default branch, enable **Restrict deletions**, **Require a pull
 request before merging** (required approvals: 0, all other options off),
 **Block force pushes** and **Require status checks to pass**, then add
-`Tests (backend + frontend)`, `Commit identities`, and `CLA gate` with source
-**GitHub Actions**, plus the `CLA` and `Commit identity policy` commit statuses.
-
-## Ruleset: `cla-signatures`
-
-`.github/scripts/cla_check.py` creates this branch on the first signature and
-commits signatures to it with the workflow's `GITHUB_TOKEN`. The ruleset blocks deletion and force-push only. It
-does not restrict updates or require checks, so the workflow can keep committing.
-You can create the ruleset before the branch exists.
-
-```bash
-gh api --method POST repos/debpalash/VoiceStudio/rulesets --input - <<'JSON'
-{
-  "name": "cla-signatures",
-  "target": "branch",
-  "enforcement": "active",
-  "conditions": { "ref_name": { "include": ["refs/heads/cla-signatures"], "exclude": [] } },
-  "bypass_actors": [],
-  "rules": [
-    { "type": "deletion" },
-    { "type": "non_fast_forward" }
-  ]
-}
-JSON
-```
-
-Check both rulesets with `gh api repos/debpalash/VoiceStudio/rulesets`.
+`Tests (backend + frontend)` and `Commit identities` with source
+**GitHub Actions**, plus the `Commit identity policy` status.
 
 ## Secret scanning and push protection
 

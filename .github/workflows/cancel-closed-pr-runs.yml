@@ -3,11 +3,11 @@
 # Unfinished runs of a closed PR are never read, yet they hold runner slots that
 # other PRs are queued for (the repository is capped at 20 concurrent jobs). The
 # script cancels only pull_request / pull_request_target runs that started before
-# the close, so runs the close itself triggers (CLA recording) finish normally.
+# the close, so runs the close itself triggers finish normally.
 # `--sweep` (workflow_dispatch) is the same cleanup for the whole repository.
 #
 # Security: pull_request_target holds a write token, so this checks out only the
-# base commit and never runs pull-request code; tests/test_cla_workflow.py
+# base commit and never runs pull-request code; tests/test_trusted_pr_workflows.py
 # enforces that for every privileged workflow.
 name: cancel-closed-pr-runs
 

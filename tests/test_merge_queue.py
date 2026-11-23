@@ -1,8 +1,8 @@
 """The merge queue must be able to merge: every required check reports on its commit.
 
-`main`'s ruleset requires five checks. The merge queue builds a temporary
+The recommended ruleset requires three checks. The merge queue builds a temporary
 `gh-readonly-queue/...` commit and waits for them there. Code checks come from ci.yml;
-the PR-level ones (CLA, commit identities) cannot run on that commit, so
+the PR-level identity checks cannot run on that commit, so
 merge-queue-checks.yml reports them. If a name drifts, the queue waits forever.
 """
 from __future__ import annotations
@@ -14,8 +14,8 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 
 # The ruleset's required_status_checks (Settings > Rules > main). Update with it.
-REQUIRED_JOB_CHECKS = {"Tests (backend + frontend)", "Commit identities", "CLA gate"}
-REQUIRED_STATUS_CONTEXTS = {"CLA", "Commit identity policy"}
+REQUIRED_JOB_CHECKS = {"Tests (backend + frontend)", "Commit identities"}
+REQUIRED_STATUS_CONTEXTS = {"Commit identity policy"}
 
 
 def _workflow(name: str) -> dict:

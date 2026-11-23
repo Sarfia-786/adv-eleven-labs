@@ -57,7 +57,7 @@ Documentation/test-only CI policy (owner-set 2026-10-31): skip runtime tests and
 product builds for documentation-only or test-only changes. Keep the required
 check green through an explicit detected skip; run changed tests locally. Mixed
 runtime/config/dependency changes still run CI, as do bundled app assets and
-licence/catalog data. CLA, identity and secret checks remain enabled.
+licence/catalog data. Identity and secret checks run for every change.
 
 ## Change rules (see CLAUDE.md for full text)
 - Root-cause the class, not the instance; fail-before/pass-after regression test; smallest correct change.

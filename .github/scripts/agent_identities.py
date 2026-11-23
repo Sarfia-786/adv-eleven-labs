@@ -1,8 +1,4 @@
-"""AI agent identities, shared by the CLA check and the commit-identity gate.
-
-Lives in .github/scripts because .github/workflows/cla.yml checks out only this
-directory from the base branch. scripts/check_commit_identities.py loads it by
-path. Standard library only.
+"""Agent identities used by the commit identity check and historical provenance audit.
 
 Only identities that name an agent are listed, never whole company domains, so
 people who commit with a work address at an AI company are treated as people.

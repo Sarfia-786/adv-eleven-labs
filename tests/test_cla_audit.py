@@ -79,7 +79,7 @@ def test_unresolved_co_author_gets_no_pr_or_name_fallback():
 
 def _audit_report(monkeypatch, tmp_path, capsys, *, owner_signed=False):
     """Run the real report/classification over a small attributed inventory, offline."""
-    owner = next(iter(audit.cla.MAINTAINER_IDS))
+    owner = next(iter(audit.MAINTAINER_IDS))
     placeholder = "test@local"
     signed_email = "2002+signed@users.noreply.github.com"
     unlinked = "unlinked@example.invalid"

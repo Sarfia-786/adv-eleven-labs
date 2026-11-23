@@ -13,19 +13,6 @@ Thanks for your interest in improving VoiceStudio! This guide covers everything 
 
 ---
 
-> **Before your first pull request: sign the CLA first.** Unless exempt under the
-> [CLA checker’s policy](#contribution-licensing), sign the
-> [Contributor License Agreement](CLA-1.0.md) once. It takes a minute: post the
-> line in [Contribution licensing](#contribution-licensing) on the
-> [signing issue (#2586)](https://github.com/debpalash/VoiceStudio/issues/2586), and
-> your signature covers your future contributions. A pull request opened before
-> you sign is converted to a draft, its heavy CI is skipped and the review bots
-> wait; when you sign, CI re-runs automatically and the pull request is marked
-> ready (one you made a draft yourself stays a draft until you mark it). An unsigned
-> pull request cannot merge unless a maintainer applies the `cla-override` label
-> after manual review. Every other non-exempt human commit author and co-author
-> must also sign before the check passes.
->
 > **Using an AI coding agent?** Give it the
 > [agent pull-request guide](AGENT_PR_GUIDE.md) first.
 
@@ -478,10 +465,9 @@ as Claude, Jules, or Devin. Known agent email addresses remain blocked. The
 identity workflow runs the base branch's policy and publishes `Commit identity
 policy`; changing the checker or workflow in your PR does not bypass it.
 
-Keep one open PR per head commit. CLA checks reject duplicate heads because
-GitHub commit statuses are shared by SHA, even when PR descriptions or authors
-differ. Close duplicates and comment `recheck` on the survivor, then rerun its
-trusted identity workflow.
+Keep one open PR per head commit. The identity check rejects duplicate heads
+because GitHub statuses are shared by SHA. Close duplicates and rerun the
+surviving PR’s identity workflow.
 
 One practical tip: this codebase is large, and re-explaining it to your agent
 every session burns context and tokens fast. A persistent memory layer fixes
@@ -501,9 +487,7 @@ still works. Mixed changes, workflow/build configuration, dependencies and bundl
 app icons still run their normal checks, as do changes to the UI crawler's
 harness (`CI_HARNESS` in `.github/scripts/ci_scope.py`), so the crawler job checks
 its own changes; unknown or truncated change lists run
-all checks. Manual runs and scheduled audits remain full runs. CLA, commit identity
-and secret scanning still run. The same skip applies while a pull request's
-opener has not signed the CLA (see [Contribution licensing](#contribution-licensing)). Run changed tests locally before submitting a
+all checks. Manual runs and scheduled audits remain full runs. Commit identity and secret scanning still run. Run changed tests locally before submitting a
 test-only PR. Docker Hub overview edits still publish through the small
 `dockerhub-description.yml` workflow without rebuilding images.
 
@@ -551,7 +535,7 @@ test-only PR. Docker Hub overview edits still publish through the small
   runtime CI harness still build; unknown, failed or truncated change detection
   runs the build. Merge groups retain the package's mobile and unrelated
   `.github/` exclusions; the Nix workflow itself always qualifies. Explicit
-  manual/release events remain full, and the existing unsigned-CLA hold remains.
+  manual and release events run in full.
 - **Mobile artifacts:** uploads retry once after ten seconds when the first
   attempt fails and the run is not cancelled. Both attempts use the same
   artifact name and inputs; a failed retry still fails the job, and pass-cache
@@ -564,7 +548,7 @@ test-only PR. Docker Hub overview edits still publish through the small
   the files it reads, plus its workflow file and `.github/actions/ci-pass`; a
   green run saves an empty cache marker under that key as its last step. Only
   pull-request and merge-queue runs skip; pushes to `main`, manual runs,
-  releases and the CLA, identity and security checks always run in full, and
+  releases and the identity and security checks always run in full, and
   `main`'s runs save the markers pull requests reuse. Each job lists its
   inputs next to its `ci-pass` step; when a job starts reading a new file
   outside them, add it there. To force a full run, use **Run workflow** on the
@@ -775,64 +759,11 @@ test-only PR. Docker Hub overview edits still publish through the small
 
 ## Contribution licensing
 
-VoiceStudio is **AGPL-3.0-only**, and the maintainer also offers a
-**commercial license** (see [LICENSE-NOTICE.md](../LICENSE-NOTICE.md)). Before
-a pull request can merge, every non-exempt human contributor — the opener,
-commit authors and co-authors — signs the [Contributor License Agreement](CLA-1.0.md)
-once. The [checker](scripts/cla_check.py) exempts its configured maintainer and
-bot account IDs. You keep
-your copyright. The agreement lets Yupcha Softwares Private Limited, the
-company that maintains VoiceStudio, ship your work in both the AGPL-3.0 app and
-commercial builds. In return, the company commits that while your contribution
-is in the public VoiceStudio repository, it stays available there under
-AGPL-3.0 or another OSI-approved licence (CLA section 4). AI agents can't be co-authors (see
-[Contributing with AI agents](#contributing-with-ai-agents)); the person
-submitting the work signs for it.
-
-For an unsigned pull request, the daily CLA reminder starts a 3-day waiting
-period, displays its UTC deadline, and sends one reminder halfway through.
-Signing takes a minute. After the deadline maintainers may independently address
-the underlying issue without using the contribution. The pull request stays open
-and signatures remain welcome after the deadline. The timer begins when the
-reminder first detects an unsigned contributor; a deadline already shown on a
-pull request (14 days, before this changed) keeps its date.
-
-While the person who opened a pull request has not signed, the CLA check holds
-it: it converts the pull request to a draft (CodeRabbit and Greptile skip
-drafts) and says so in its comment, with the signing step and a prompt for your
-AI coding agent. CI skips its heavy jobs, and the required
-`Tests (backend + frontend)` check reports "CLA not signed yet". The CLA, CLA
-gate, commit identity and secret scan checks still run. Once you sign, on the
-pull request or the signing issue, the check marks the pull request ready for
-review (unless you made it a draft yourself) and re-runs the CI it skipped.
-Marking it ready before you sign puts it back to draft. If CI cannot be
-restarted yet (a run still in progress), the comment says so; comment
-`recheck` later to retry. Maintainers, bots, and signed openers are never held.
-
-The **CLA** check comments on your pull request when someone still needs to
-sign. To sign, post this as a new comment, on its own line:
-
-```text
-I have read the VoiceStudio CLA 1.0 and I hereby sign it.
-```
-
-The signature covers your earlier and future contributions. The CLA check
-identifies other required signers or cases needing manual review.
-New contributors can sign first: post the same line on the
-[signing issue (#2586)](https://github.com/debpalash/VoiceStudio/issues/2586)
-before opening a pull request, or on the pull request itself if you prefer. The
-same signature applies if a maintainer folds your pull request into another one.
-If a pull request contains `Supersedes #N`, its CLA check also covers the
-non-exempt human opener, commit authors and co-authors of pull request #N.
-Contributed before and have no open pull request? Post
-the same line on the [issue labelled `cla`](https://github.com/debpalash/VoiceStudio/issues?q=label%3Acla). If it lists a commit it cannot link to a GitHub
-account, either add that commit email to your account (Settings → Emails), or
-rewrite the commits with an email that is on it (`git commit --amend
---reset-author`, or an interactive rebase) and push again. Comment `recheck` to
-run the check without pushing. Contributing as part of your job? Your employer
-signs the [Corporate CLA](CCLA-1.0.md) first, and you still sign the CLA
-yourself. Adding a `Signed-off-by:` line (DCO) is appreciated but does not
-replace the CLA.
+This fork runs CI according to the files changed. Its pull request checks do
+not collect contributor signatures. The [project license](../LICENSE) and
+[upstream licensing notice](../LICENSE-NOTICE.md) are available in the
+repository. For contributions sent to upstream VoiceStudio, follow the
+[upstream contribution guide](https://github.com/debpalash/VoiceStudio/blob/main/.github/CONTRIBUTING.md).
 
 ---
 
