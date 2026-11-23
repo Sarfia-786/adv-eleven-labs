@@ -2,13 +2,14 @@ name: Model parameters (CPU-only inventory)
 
 # Runs on a standard public Ubuntu runner (4 vCPU). This validates catalog,
 # licensing and phone metadata, but never downloads model weights or runs GPU
-# inference. The standalone push trigger works while unrelated PR CI is held.
+# inference. Upload the report before checking the registry against source defaults.
 on:
   push:
-    branches: [audit/model-parameters-cpu-ci]
+    branches: [main, audit/model-parameters-cpu-ci]
     paths:
       - '.github/workflows/model-parameters.yml'
       - 'scripts/model_parameter_inventory.py'
+      - 'scripts/check_model_licenses.py'
       - 'tests/test_model_parameter_inventory.py'
       - 'backend/config/models.yaml'
       - 'backend/config/model_licenses.json'
@@ -18,6 +19,7 @@ on:
     paths:
       - '.github/workflows/model-parameters.yml'
       - 'scripts/model_parameter_inventory.py'
+      - 'scripts/check_model_licenses.py'
       - 'tests/test_model_parameter_inventory.py'
       - 'backend/config/models.yaml'
       - 'backend/config/model_licenses.json'
@@ -53,9 +55,7 @@ jobs:
       - name: Install only the small YAML parsing dependency
         run: python -m pip install 'pyyaml==6.0.3'
       - name: Run focused offline inventory tests
-        run: python -m unittest discover -s tests -p test_model_parameter_inventory.py -v
-      - name: Validate full model licence registry (including hardcoded defaults)
-        run: python scripts/check_model_licenses.py
+        run: python tests/test_model_parameter_inventory.py -v
       - name: Generate all-source parameter reports
         run: python scripts/model_parameter_inventory.py --output-dir "$RUNNER_TEMP/model-parameter-report"
       - name: Upload JSON and Markdown inventory
@@ -65,3 +65,5 @@ jobs:
           path: ${{ runner.temp }}/model-parameter-report/
           if-no-files-found: error
           retention-days: 14
+      - name: Validate full model licence registry (including hardcoded defaults)
+        run: python scripts/check_model_licenses.py

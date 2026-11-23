@@ -10,14 +10,15 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from collections import Counter
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from check_model_licenses import catalog_ids
+
 ROOT = Path(__file__).resolve().parents[1]
-WHISPER = "https://github.com/openai/whisper/blob/main/model-card.md"
+WHISPER = "https://github.com/openai/whisper#available-models-and-languages"
 VOXCPM = "https://huggingface.co/openbmb/VoxCPM2"
 KITTEN = "https://huggingface.co/KittenML/kitten-tts-mini-0.8"
 POCKET = "https://huggingface.co/kyutai/pocket-tts"
@@ -26,14 +27,10 @@ POCKET = "https://huggingface.co/kyutai/pocket-tts"
 # For quantized and converted copies, this is the original architecture's
 # approximate size; quantization does not reduce the number of parameters.
 # Entries with multiple separate networks deliberately remain unknown.
-WHISPER_COUNTS = {
-    "large-v3": 1550, "large-v2": 1550, "large-v3-turbo": 809,
-    "medium": 769, "small": 244, "base": 74, "tiny": 39,
-}
-COUNTS: dict[str, tuple[int, str, str]] = {}
+COUNTS: dict[str, tuple[float, str, str]] = {}
 
 
-def record(names: str, millions: int, provenance: str, source: str) -> None:
+def record(names: str, millions: float, provenance: str, source: str) -> None:
     for name in names.split():
         if name in COUNTS:
             raise AssertionError(f"duplicate count mapping: {name}")
@@ -109,6 +106,168 @@ record("kyutai/pocket-tts csukuangfj2/sherpa-onnx-pocket-tts-int8-2026-01-26",
        100, "published-family-size", POCKET)
 
 
+record(
+    "k2-fsa/OmniVoice "
+    "Serveurperso/OmniVoice-GGUF",
+    600, "speech backbone",
+    "https://huggingface.co/Serveurperso/OmniVoice-GGUF",
+)
+record(
+    "audio-cpp/audio.cpp-gguf:dots-tts-soar-q8_0 "
+    "rednote-hilab/dots.tts-soar",
+    2000, "published model family",
+    "https://huggingface.co/rednote-hilab/dots.tts-soar",
+)
+record(
+    "Systran/faster-distil-whisper-large-v3",
+    756, "published model family",
+    "https://huggingface.co/distil-whisper/distil-large-v3",
+)
+record(
+    "csukuangfj/sherpa-onnx-streaming-paraformer-bilingual-zh-en",
+    220, "published streaming model family",
+    "https://github.com/modelscope/FunASR#model-zoo",
+)
+record(
+    "pyannote/segmentation-3.0",
+    1.47, "architecture reported by the MLX conversion",
+    "https://huggingface.co/mlx-community/pyannote-segmentation-3.0-mlx",
+)
+record(
+    "pyannote/wespeaker-voxceleb-resnet34-LM",
+    6.6, "architecture reported by the MLX conversion",
+    "https://huggingface.co/mlx-community/wespeaker-voxceleb-resnet34-LM",
+)
+record(
+    "mlx-community/Chatterbox-TTS-4bit",
+    500, "published speech model family",
+    "https://huggingface.co/ResembleAI/chatterbox",
+)
+record(
+    "mlx-community/MeloTTS-English-v3-MLX",
+    51.8, "Hub model size for the MLX checkpoint",
+    "https://huggingface.co/mlx-community/MeloTTS-English-v3-MLX",
+)
+record(
+    "IndexTeam/IndexTTS-2.5",
+    800, "GPT backbone only",
+    "https://huggingface.co/IndexTeam/IndexTTS-2.5",
+)
+record(
+    "Supertone/supertonic-3 "
+    "csukuangfj2/sherpa-onnx-supertonic-3-tts-int8-2026-05-11",
+    99, "published total across the public ONNX models",
+    "https://huggingface.co/Supertone/supertonic-3",
+)
+record(
+    "OpenMOSS-Team/MOSS-TTS-v1.5",
+    8000, "published model family",
+    "https://huggingface.co/OpenMOSS-Team/MOSS-TTS-v1.5",
+)
+record(
+    "OpenMOSS-Team/MOSS-Audio-Tokenizer",
+    1600, "encoder and decoder combined",
+    "https://huggingface.co/OpenMOSS-Team/MOSS-Audio-Tokenizer",
+)
+record(
+    "OpenMOSS-Team/MOSS-SoundEffect-v2.0",
+    1300, "diffusion transformer only",
+    "https://huggingface.co/OpenMOSS-Team/MOSS-SoundEffect-v2.0",
+)
+record(
+    "facebook/w2v-bert-2.0",
+    600, "speech encoder",
+    "https://huggingface.co/facebook/w2v-bert-2.0",
+)
+record(
+    "funasr/campplus",
+    7.2, "published speaker encoder",
+    "https://github.com/modelscope/FunASR#model-zoo",
+)
+record(
+    "nvidia/bigvgan_v2_22khz_80band_256x",
+    112, "vocoder generator",
+    "https://github.com/NVIDIA/BigVGAN#pretrained-models",
+)
+record(
+    "iic/SenseVoiceSmall",
+    234, "published ASR model",
+    "https://github.com/modelscope/FunASR#model-zoo",
+)
+record(
+    "eustlb/higgs-audio-v2-tokenizer",
+    200, "Hub model size for the audio tokenizer",
+    "https://huggingface.co/eustlb/higgs-audio-v2-tokenizer",
+)
+record(
+    "csukuangfj/kitten-mini-en-v0_1-fp16",
+    80, "published v0.1 model family",
+    "https://huggingface.co/KittenML/kitten-tts-mini-0.1",
+)
+record(
+    "csukuangfj/vits-piper-en_US-lessac-medium",
+    15.7, "published benchmark for original Lessac Medium",
+    "https://github.com/ayutaz/piper-plus/blob/dev/README_EN.md#benchmark",
+)
+record(
+    "k2-fsa/ZipVoice",
+    123, "ZipVoice-Distill speech model, excluding the separate vocoder",
+    "https://arxiv.org/html/2506.13053v1",
+)
+
+# Interpret partial counts and explain which selections prevent a single total.
+PARAMETER_NOTES = {
+    "audio-cpp/audio.cpp-gguf": (
+        "The selected bundle contains two independent models, Breeze-TTS-2 and Sortformer 4spk v1. A combined count is unverified."
+    ),
+    "csukuangfj/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20": (
+        "The bilingual checkpoint uses a different vocabulary and architecture from the 14M and 20M Zipformers. Its count is unverified."
+    ),
+    "pyannote/speaker-diarization-3.1": (
+        "Configuration that loads segmentation-3.0 and WeSpeaker ResNet34-LM. Both components are itemized separately."
+    ),
+    "lj1995/GPT-SoVITS": (
+        "This source distributes several GPT and SoVITS checkpoints. The model version and pair determine the total."
+    ),
+    "netease-youdao/Confucius4-TTS": (
+        "The release has separate text-to-semantic and semantic-to-acoustic weights. A combined count is unverified."
+    ),
+    "ggerganov/whisper.cpp": (
+        "The user selects the GGML file. The registered Whisper family ranges from 39M (tiny) to 1.55B (large)."
+    ),
+    "k2-fsa/OmniVoice": (
+        "The 600M figure describes the Qwen speech backbone. The separate audio tokenizer is outside that figure."
+    ),
+    "Serveurperso/OmniVoice-GGUF": (
+        "The mobile package also includes the audio tokenizer. Its weights are outside the backbone count."
+    ),
+    "mlx-community/Chatterbox-TTS-4bit": (
+        "Resemble reports 500M for the speech model. The MLX package also contains other tensors."
+    ),
+    "IndexTeam/IndexTTS-2.5": (
+        "The speech-to-mel decoder and vocoder are additional components."
+    ),
+    "OpenMOSS-Team/MOSS-SoundEffect-v2.0": (
+        "The text encoder and audio decoder are additional components."
+    ),
+}
+
+# Published examples for families whose installed version is selected by the SDK.
+DYNAMIC_COUNTS = {
+    "audioseal_wm_16bits / audioseal_detector_16bits": (
+        ("AudioSeal generator (published benchmark)", 14.68, "https://proceedings.mlr.press/v267/liu25ap.html"),
+        ("AudioSeal detector (published benchmark)", 8.65, "https://proceedings.mlr.press/v267/liu25ap.html"),
+    ),
+    "htdemucs": (
+        ("Four-stem HTDemucs architecture", 42, "https://huggingface.co/jasonvassallo/demucs-htdemucs-mlx"),
+    ),
+    "fsmn-vad / cam++": (
+        ("FSMN-VAD", 0.4, "https://github.com/modelscope/FunASR#model-zoo"),
+        ("CAM++", 7.2, "https://github.com/modelscope/FunASR#model-zoo"),
+    ),
+}
+
+
 def load(root: Path = ROOT) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     desktop = yaml.safe_load((root / "backend/config/models.yaml").read_text(encoding="utf-8"))
     licenses = json.loads((root / "backend/config/model_licenses.json").read_text(encoding="utf-8"))
@@ -122,21 +281,11 @@ def load(root: Path = ROOT) -> tuple[dict[str, Any], dict[str, Any], dict[str, A
     return desktop, licenses, mobile
 
 
-def dependency_ids(models: list[dict[str, Any]]) -> set[str]:
-    found: set[str] = set()
-
-    def collect(dependencies: list[dict[str, Any]]) -> None:
-        for dependency in dependencies:
-            found.add(dependency["repo_id"])
-            collect(dependency.get("dependencies", []))
-    for model in models:
-        collect(model.get("dependencies", []))
-    return found
-
-
 def build(root: Path = ROOT) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     desktop, licenses, mobile = load(root)
     catalog = {m.get("id") or m["repo_id"]: m for m in desktop["models"]}
+    if len(catalog) != len(desktop["models"]):
+        raise ValueError("Duplicate desktop package IDs")
     mobile_by_repo: dict[str, list[dict[str, Any]]] = {}
     for model in mobile["models"]:
         mobile_by_repo.setdefault(model["repo"], []).append(model)
@@ -144,7 +293,7 @@ def build(root: Path = ROOT) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     lic_ids = [item["id"] for item in lic_records]
     if len(lic_ids) != len(set(lic_ids)):
         raise ValueError("Duplicate model-license IDs")
-    required = set(catalog) | dependency_ids(desktop["models"]) | set(mobile_by_repo)
+    required = set(catalog_ids(desktop["models"])) | set(mobile_by_repo)
     missing = required - set(lic_ids)
     if missing:
         raise ValueError("Model sources missing license records: " + ", ".join(sorted(missing)))
@@ -161,17 +310,26 @@ def build(root: Path = ROOT) -> tuple[list[dict[str, Any]], dict[str, Any]]:
             value, evidence_type, source = known
         else:
             value, evidence_type, source = None, "unverified", None
+        engine_names = ", ".join(license_record.get("engines", []))
+        if desktop_model:
+            role = desktop_model["role"]
+        elif phone_models:
+            role = ", ".join(sorted({m["capability"] for m in phone_models}))
+        elif engine_names:
+            role = f"Engine component ({engine_names})"
+        else:
+            role = "Pipeline component"
         platform = desktop_model.get("platforms", []) if desktop_model else []
         rows.append({
             "model_id": model_id,
-            "role": (desktop_model.get("role") if desktop_model else
-                     ", ".join(sorted({p["capability"] for p in phone_models})) if phone_models else
-                     "dependency / engine default"),
+            "role": role,
             "desktop_catalog": desktop_model is not None,
             "mobile_catalog": bool(phone_models),
             "parameter_millions_reported": value,
             "parameter_evidence": evidence_type,
             "parameter_source": source,
+            "source_url": license_record.get("source_url"),
+            "parameter_note": PARAMETER_NOTES.get(model_id),
             "approx_download_gib": desktop_model.get("size_gb") if desktop_model else None,
             "platforms": platform or None,
             "license_review": license_record.get("review_status"),
@@ -184,45 +342,67 @@ def build(root: Path = ROOT) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         "known_parameter_reports": sum(r["parameter_millions_reported"] is not None for r in rows),
         "unverified_parameter_reports": sum(r["parameter_millions_reported"] is None for r in rows),
         "additional_dynamic_assets": len(licenses.get("dynamic_assets", [])),
-        "note": "Counts are published architecture/family approximations, NOT exact tensor counts or total pipeline parameters. Null means not verified. No weights, inference or GPU are used.",
+        "dynamic_assets": [
+            {
+                "id": d["id"],
+                "source_url": d.get("source_url"),
+                "published_components": [
+                    {"name": name, "millions": value, "source": url}
+                    for name, value, url in DYNAMIC_COUNTS.get(d["id"], ())
+                ],
+            }
+            for d in licenses.get("dynamic_assets", [])
+        ],
+        "note": "Counts describe published models or the named components. Null marks an unverified single total.",
     }
     return rows, summary
 
 
 def markdown(rows: list[dict[str, Any]], summary: dict[str, Any]) -> str:
     lines = [
-        "# VoiceStudio offline model-parameter inventory",
+        "# VoiceStudio model-parameter inventory",
         "",
-        f"Desktop catalog: **{summary['desktop_packages']}** packages. "
-        f"License sources: **{summary['licensed_model_sources']}** records. "
-        f"Mobile catalog: **{summary['mobile_packages']}** packages.",
-        f"Published/family parameter reports: **{summary['known_parameter_reports']}**; "
-        f"not verified: **{summary['unverified_parameter_reports']}**.",
+        f"{summary['licensed_model_sources']} registered sources cover "
+        f"{summary['desktop_packages']} desktop and {summary['mobile_packages']} mobile "
+        "packages, including shared models and dependencies.",
+        f"{summary['known_parameter_reports']} sources have a reported parameter count. "
+        f"{summary['unverified_parameter_reports']} have no verified single total.",
         "",
-        "**Counts are approximate model-family sizes, not measured checkpoint tensor totals.** "
-        "Quantized files keep parameter count but change disk usage; multi-model pipelines "
-        "may have additional, uncounted components. Unknown is not zero.",
+        "M = million parameters. B = billion. The scope column identifies backbone, "
+        "component and family counts. Quantized variants can share the same architecture.",
         "",
-        "| Model/source | Purpose | Params (approx.) | Download (GiB) | Evidence |",
+        "| Model or source | Purpose | Parameters | Download (GiB) | Scope and evidence |",
         "|---|---|---:|---:|---|",
     ]
     for row in rows:
         count = row["parameter_millions_reported"]
+        display_count = "Unverified"
+        if count is not None:
+            display_count = f"{count / 1000:.3g}B" if count >= 1000 else f"{count:g}M"
         size = row["approx_download_gib"]
         evidence = row["parameter_evidence"]
-        if row["parameter_source"]:
-            source = row["parameter_source"]
-            evidence += f" ([source]({source}))" if source.startswith("https://") else f" (\`{source}\`)"
+        source = row["parameter_source"] or row["source_url"]
+        if source:
+            label = "source" if row["parameter_source"] else "model listing"
+            evidence += f" ([{label}]({source}))" if source.startswith("https://") else f" (`{source}`)"
+        if row["parameter_note"]:
+            evidence += f". {row['parameter_note']}"
         lines.append(
-            f"| \`{row['model_id']}\` | {row['role']} | "
-            f"{(format(count / 1000, '.3g') + 'B') if count is not None and count >= 1000 else (str(count) + 'M') if count is not None else 'Unverified'} | "
+            f"| `{row['model_id']}` | {row['role']} | {display_count} | "
             f"{size if size is not None else '—'} | {evidence} |"
         )
-    lines += ["", "Source registries: \`backend/config/models.yaml\`, "
-              "\`backend/config/model_licenses.json\`, \`mobile/contract/models.source.json\`.",
-              f"Additional license-only dynamic assets: {summary['additional_dynamic_assets']} (not counted as individually enumerated model checkpoints).",
-              "", "CPU-only check: no download, inference, tokenizer initialization, GPU probe or hosted API call.", ""]
-    return "\n".join(lines)
+    lines.extend(["", "## Runtime-selected assets", "",
+                  "These families depend on the SDK, language or user selection.", ""])
+    for asset in summary["dynamic_assets"]:
+        source = asset["source_url"]
+        name = asset["id"]
+        label = f"[{name}]({source})" if source else name
+        parts = [
+            f"{c['name']} [{c['millions']:g}M]({c['source']})"
+            for c in asset["published_components"]
+        ]
+        lines.append(f"- {label} — " + (", ".join(parts) if parts else "selection-dependent"))
+    return "\n".join(lines) + "\n"
 
 
 def main() -> int:

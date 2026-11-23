@@ -61,11 +61,29 @@ class InventoryTests(unittest.TestCase):
         self.assertIsNone(by_id["example/dep"]["parameter_millions_reported"])
         self.assertEqual(by_id["example/mobile"]["role"], "asr")
         self.assertIn("Unverified", inventory.markdown(rows, summary))
-        self.assertIn("12M", inventory.markdown(rows, summary))
+        report = inventory.markdown(rows, summary)
+        self.assertIn("12M", report)
+        self.assertIn("unknown-plugin", report)
+        self.assertIn("`example/main`", report)
+        self.assertEqual(summary["dynamic_assets"][0]["published_components"], [])
 
     def test_catalog_dependency_must_be_in_license_inventory(self) -> None:
         self.write_fixture(missing=("example/dep",))
         with self.assertRaisesRegex(ValueError, "example/dep"):
+            inventory.build(self.root)
+
+    def test_nested_package_uses_its_full_catalog_id(self) -> None:
+        catalog = yaml.safe_load(self.catalog_path.read_text(encoding="utf-8"))
+        catalog["models"][0]["dependencies"][0]["id"] = "example/dep:selected"
+        self.catalog_path.write_text(yaml.safe_dump(catalog), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "example/dep:selected"):
+            inventory.build(self.root)
+
+    def test_duplicate_desktop_packages_are_rejected(self) -> None:
+        catalog = yaml.safe_load(self.catalog_path.read_text(encoding="utf-8"))
+        catalog["models"].append(catalog["models"][0].copy())
+        self.catalog_path.write_text(yaml.safe_dump(catalog), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Duplicate desktop"):
             inventory.build(self.root)
 
     def test_mobile_source_must_be_in_license_inventory(self) -> None:
@@ -89,6 +107,10 @@ class InventoryTests(unittest.TestCase):
         self.assertGreaterEqual(summary["desktop_packages"], 40)
         self.assertGreaterEqual(summary["mobile_packages"], 10)
         self.assertGreater(summary["unverified_parameter_reports"], 0)
+        by_id = {row["model_id"]: row for row in rows}
+        self.assertEqual(by_id["IndexTeam/IndexTTS-2.5"]["parameter_evidence"], "GPT backbone only")
+        self.assertIsNone(by_id["pyannote/speaker-diarization-3.1"]["parameter_millions_reported"])
+        self.assertIn("segmentation-3.0", by_id["pyannote/speaker-diarization-3.1"]["parameter_note"])
         self.assertTrue(all(r["parameter_source"] for r in rows if r["parameter_millions_reported"] is not None))
 
 
