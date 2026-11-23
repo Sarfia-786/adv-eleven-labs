@@ -462,7 +462,8 @@ IPA를 내려받고 서명 및 사이드로드 안내를 따르세요.
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # 특정 릴리스
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # 최신 main 빌드
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # 최신 main 빌드
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # 데이터는 남기고 앱만 제거
 ```
 

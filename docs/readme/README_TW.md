@@ -461,7 +461,8 @@ iOS / iPadOS 17+ · 預覽版 · 下載模型後可在裝置上離線執行。
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # 安裝指定版本
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # 構建當前 main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # 構建當前 main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # 解除安裝應用，保留資料
 ```
 

@@ -461,7 +461,8 @@ Installeer met behulp van de bovenstaande opties. Open vervolgens **Stemklonen**
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # a specific release
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # build current main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # build current main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # remove the app, keep your data
 ```
 

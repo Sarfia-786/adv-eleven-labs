@@ -462,7 +462,8 @@ iOS / iPadOS 17+ · Предварительная версия · После з
 
 ```sh
 curl -fsSL https://voicestudio.sh/install | sh -s -- --version X.Y.Z   # конкретный релиз
-curl -fsSL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh | sh -s -- --main            # собрать текущий main
+curl -fL https://raw.githubusercontent.com/Sarfia-786/adv-eleven-labs/main/scripts/install.sh -o voicestudio-install.sh
+sh ./voicestudio-install.sh --main            # собрать текущий main
 curl -fsSL https://voicestudio.sh/install | sh -s -- --uninstall       # удалить приложение, сохранив данные
 ```
 

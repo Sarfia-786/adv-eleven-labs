@@ -62,6 +62,7 @@ _ALLOWED_FILES = {
     "omnivoice/models/omnivoice.py": "Model language tokens.",
     "omnivoice/utils/duration.py": "CJK duration rules for character-based timing.",
     "omnivoice/utils/voice_design.py": "Voice-design model vocabulary.",
+    "omnivoice-gallery/scripts/validate_manifest.py": "Validates the model's fixed dialect tokens in gallery manifests.",
     "backend/migrations/versions/0007_rebuild_poisoned_design_instruct.py": "Migrates model prompts.",
     "electron/src/shared/utils/errorDocsMap.ts": "Recognizes localized errors.",
     "omnivoice/eval/wer/fleurs.py": "Multilingual evaluation data.",
