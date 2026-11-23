@@ -157,8 +157,9 @@ def test_desktop_engine_gates_exclude_phone_only_models():
         assert phone_ids.isdisjoint(repos_for_engine(engine))
 
 
-def test_commercial_assessment_is_validated_per_model_not_prior_row():
-    """A cleared model may say permitted; unreviewed neighbours may not."""
+@pytest.mark.parametrize("field", ["commercial_inference", "commercial_outputs"])
+def test_commercial_assessment_is_validated_per_model_not_prior_row(field):
+    """Only the unreviewed row should report an unsupported assessment."""
     data = registry()
     cleared = data["models"][0]
     cleared.update(
@@ -168,16 +169,13 @@ def test_commercial_assessment_is_validated_per_model_not_prior_row():
         commercial_inference="permitted", commercial_outputs="permitted",
     )
     unreviewed = data["models"][1]
-    unreviewed["commercial_inference"] = "permitted"
+    unreviewed.update(review_status="unreviewed", commercial_use=False,
+                      commercial_inference="unknown", commercial_outputs="unknown")
+    unreviewed[field] = "permitted"
     errors = checker().validate(data, catalog())
-    assert not any(
-        e.startswith(f"{cleared['id']}: unsupported commercial_") for e in errors
-    )
-    assert any(
-        e == f"{unreviewed['id']}: unsupported commercial_inference" for e in errors
-    )
-    unreviewed["commercial_inference"] = "unknown"
+    assert [e for e in errors if ": unsupported commercial_" in e] == [
+        f"{unreviewed['id']}: unsupported {field} assessment"
+    ]
+    unreviewed[field] = "unknown"
     errors = checker().validate(data, catalog())
-    assert not any(
-        e.startswith(f"{cleared['id']}: unsupported commercial_") for e in errors
-    )
+    assert not any(": unsupported commercial_" in e for e in errors)
