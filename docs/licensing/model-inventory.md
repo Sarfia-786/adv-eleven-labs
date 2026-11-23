@@ -101,3 +101,16 @@ Complete upstream evidence, selected-component closure, redistribution notices,
 provider-specific access handling and integration at all runtime boundaries
 remain unimplemented requirements, not properties of this preview.
 
+
+## Hosted paid-inference policy (issue #8)
+
+The offline hosted gate is **separate** from local reviewed installs and Studio
+acceptance. Run `python scripts/check_hosted_model_licenses.py --manifest
+/path/to/deployment-models.json` to review exact pinned deployment selections;
+call `services.hosted_model_policy.require_paid_inference` again for every
+paid worker inference. Any missing, mismatched or restrictive revision,
+component, model weight, document, commercial inference or output term blocks.
+The synthetic fixture shows approval and refusal but is **not** an approved
+real model. No production selection is cleared. See
+[commercial licence review](../COMMERCIAL_LICENSE_REVIEW.md) for the full
+contract, examples and unresolved upstream rights/attribution decisions.
