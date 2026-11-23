@@ -55,3 +55,45 @@ uv run uvicorn --app-dir backend hosted_api:create_app --factory --host 127.0.0.
 For PostgreSQL, set a `postgresql+psycopg://` connection URL through the deployment's secret configuration. Supply the Psycopg 3 driver in the hosted environment for both commands, e.g. with `uv run --with 'psycopg[binary]>=3.2,<4'`. Run one migrator per deployment before starting API replicas. The hosted revision table is `hosted_alembic_version`. Studio continues to run its own migrations.
 
 Before upgrading, make a consistent backup. For SQLite use `sqlite3 /absolute/path/hosted.db ".backup '/absolute/path/hosted-before.db'"`. For PostgreSQL use `pg_dump -Fc -f hosted-before.dump` with libpq connection settings for the hosted database. For an application rollback, stop hosted writes and revert the app first. The entitlement-only version can run with the added tables in place. To undo the first schema revision, `uv run alembic -c alembic-hosted.ini downgrade base` drops every hosted dictionary. Restore saved dictionaries from the backup into a fresh database and verify it before switching the service's database URL.
+
+## Private audio artifacts
+
+Repo 1 or a worker chooses a fresh UUID for each logical audio result. Call these endpoints with the scoped token for its owner. The gateway streams the bytes from a private directory or S3 bucket. The upload returns a relative, expiring `download_path`. Use that path to retrieve or delete this upload. An old path remains expired if the UUID is reused after cleanup.
+
+| Method and path under `/api/v1` | Signed scope | Contract |
+| --- | --- | --- |
+| `PUT /artifacts/{uuid}` | `artifacts:write` | Raw `audio/wav` or `audio/mpeg` body. Returns 201 with `id`, `media_type`, `size_bytes`, `expires_at` (Unix seconds), `download_path` and `api_version`. |
+| `GET /artifacts/{uuid}?expires_at={expiry}` | `artifacts:read` | Downloads the owned audio with its measured length, an attachment filename, `nosniff` and `no-store`. Foreign, unknown, expired and deleted IDs return the same 404. |
+| `DELETE /artifacts/{uuid}?expires_at={expiry}` | `artifacts:write` | Returns 204 for a successful or already satisfied deletion. An unavailable store returns 503 and retrieval is disabled while deletion awaits retry. |
+
+```sh
+curl --fail-with-body -X PUT -H "Authorization: Bearer ${SERVICE_TOKEN}" \
+  -H 'Content-Type: audio/wav' --data-binary @speech.wav \
+  "${VOICE_API}/api/v1/artifacts/${ARTIFACT_ID}" -o receipt.json
+DOWNLOAD_PATH=$(jq -er '.download_path' receipt.json)
+curl --fail-with-body -H "Authorization: Bearer ${SERVICE_TOKEN}" \
+  "${VOICE_API}${DOWNLOAD_PATH}" -o received.wav
+```
+
+Retry identical bytes and MIME type at the same UUID after a timeout. A replay returns 200 and the original expiry. Reusing that UUID for different audio returns 409. An interrupted upload stays private. Recoverable storage failures return 503. Oversized bodies return 413 and invalid audio returns 415. A second tenant may use the same UUID for its own independent artifact.
+
+### Storage configuration and retention
+
+Apply `uv run alembic -c alembic-hosted.ini upgrade head` to install revision `h0002`. Use the same database, bucket or filesystem, limits and clock settings on the API and cleanup processes.
+
+| Setting | Value |
+| --- | --- |
+| `VOICE_ARTIFACT_BACKEND` | `local` or `s3`. Omit to leave artifact storage unconfigured. |
+| `VOICE_ARTIFACT_DIR` | Absolute private directory for local mode. Grant access only to the service account and keep it outside any static web root. |
+| `OBJECT_STORAGE_BUCKET`, `OBJECT_STORAGE_ENDPOINT` | For S3, provide a dedicated private **unversioned** bucket. The optional endpoint selects an S3-compatible service. Use HTTPS for remote storage. |
+| AWS credentials and region | Use the standard Boto3 credential and region settings, preferably a workload role. Allow `GetBucketVersioning` on the bucket and `GetObject`, `PutObject`, `DeleteObject` on `artifacts/*`. Enable bucket public-access blocking. |
+| `VOICE_ARTIFACT_MAX_BYTES` | Per upload, default 32 MiB, maximum 256 MiB. The gateway counts bytes as it receives them. |
+| `VOICE_ARTIFACT_TTL_SECONDS` | From the first reservation, default 86,400 seconds. Allowed range 1 second to 30 days. |
+
+Run the cleanup command periodically, for example once per minute using the deployment scheduler. Access ends at expiry. Physical deletion runs in batches and failed deletions are retried on later sweeps. Size the batch and frequency for the upload rate, monitor nonzero exits and configure a bucket lifecycle backstop. Keep the operating system's private temporary directory on a volume with sufficient space for simultaneous uploads and with age-based cleanup for abandoned process files.
+
+```sh
+PYTHONPATH=backend uv run python -m services.hosted_artifacts --limit 100
+```
+
+Before downgrading below `h0002`, stop writes and back up the database and its matching private objects. Apply the retention policy or export required artifacts before removing their metadata. Restore both backups together when recovering the service. The first implementation provides authenticated downloads for local storage and S3. Job submission and publishing generated results use this interface in the dependent job and speech issues.

@@ -3,11 +3,14 @@
 from contextlib import asynccontextmanager
 from typing import Annotated, Literal
 
+from api.hosted_artifacts import router as artifact_router
 from api.hosted_dependencies import authenticated_principal, require_scope
 from api.hosted_dictionaries import router as dictionary_router
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from services.hosted_artifact_storage import ArtifactStorage
+from services.hosted_artifacts import ArtifactError
 from services.hosted_database import hosted_database_url, hosted_engine
 from services.hosted_entitlements import Capability, Plan, capabilities_for
 from services.hosted_identity import Principal, ServiceVerifier
@@ -36,6 +39,7 @@ def read_entitlements(
 
 
 router.include_router(dictionary_router)
+router.include_router(artifact_router)
 
 
 def create_app() -> FastAPI:
@@ -59,6 +63,11 @@ def create_app() -> FastAPI:
     )
     app.state.service_verifier = ServiceVerifier.from_environment()
     app.state.database = database
+    app.state.artifact_storage = ArtifactStorage.configured()
+
+    @app.exception_handler(ArtifactError)
+    async def artifact_error(request: Request, exc: ArtifactError):
+        return JSONResponse({"detail": {"code": exc.code}}, status_code=exc.status)
 
     @app.middleware("http")
     async def private_response(request: Request, call_next):
