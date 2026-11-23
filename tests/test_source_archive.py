@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCAM_TEST = "tests/test_scam_guard.py"
 REQUIRED = (
     ".github/scripts/scam_guard.py",
-    "tests/test_cla_workflow.py",
+    "tests/test_trusted_pr_workflows.py",
     "scripts/install.ps1",
     "scripts/install.sh",
     "electron/tests/packaging-contract.mjs",
