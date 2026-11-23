@@ -6,6 +6,7 @@ from typing import Annotated, Literal
 from api.hosted_artifacts import router as artifact_router
 from api.hosted_dependencies import authenticated_principal, require_scope
 from api.hosted_dictionaries import router as dictionary_router
+from api.hosted_request_ids import HostedFastAPI
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -54,7 +55,7 @@ def create_app() -> FastAPI:
             if database is not None:
                 database.dispose()
 
-    app = FastAPI(
+    app = HostedFastAPI(
         title="Hosted Voice API",
         version="1.0.0",
         docs_url=None,
