@@ -1,5 +1,7 @@
 """Repo 1 signs one short-lived assertion per user with its own private key."""
 
+import hashlib
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,6 +18,15 @@ class Principal:
     subject: str
     plan: Plan
     scopes: frozenset[str]
+    issuer: str
+
+    @property
+    def owner_key(self) -> str:
+        """Stable for the verified issuer and subject across service-key rotations."""
+        identity = json.dumps(
+            [self.issuer, self.subject], ensure_ascii=True, separators=(",", ":")
+        )
+        return hashlib.sha256(identity.encode("ascii")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -90,5 +101,8 @@ class ServiceVerifier:
         if not isinstance(scope, str):
             raise TypeError("Invalid service scope")
         return Principal(
-            subject, Plan(claims[self.plan_claim]), frozenset(scope.split())
+            subject,
+            Plan(claims[self.plan_claim]),
+            frozenset(scope.split()),
+            self.issuer,
         )

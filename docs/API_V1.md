@@ -26,3 +26,32 @@ curl --fail-with-body -H "Authorization: Bearer ${SERVICE_TOKEN}" \
 ```
 
 A Free response is `{"api_version":"v1","subject":"user-a","plan":"free","capabilities":["basic_speech"]}`. The sorted capabilities describe subscription policy. The current operation surface is published at `/openapi.json`. An invalid or expired token returns HTTP 401 with `detail.code=invalid_token`. A valid token without the scope returns HTTP 403 with `detail.code=insufficient_scope`. Refresh expired credentials at the issuer. Clients must obtain the appropriate grant before retrying a 403.
+
+## Tenant-owned pronunciation dictionaries
+
+Repo 1 can save named word or phrase respellings for the signed user. The owner key is the SHA-256 digest of the ASCII JSON encoding of the verified `[iss, sub]` pair with compact separators. A signing-key rotation preserves ownership. A change of issuer creates a separate namespace. The database primary key starts with the owner key. Every lookup and mutation uses it, including list queries.
+
+| Method and path under `/api/v1` | Signed scope | Result |
+| --- | --- | --- |
+| `POST /pronunciation-dictionaries` | `dictionaries:write` | Premium creates a dictionary, HTTP 201 |
+| `GET /pronunciation-dictionaries?limit=50&offset=0` | `dictionaries:read` | Paginated `items` containing the user's IDs and names, ordered by ID. Maximum page size is 100. |
+| `GET /pronunciation-dictionaries/{id}` | `dictionaries:read` | Dictionary ID, name, entries and API version |
+| `PUT /pronunciation-dictionaries/{id}` | `dictionaries:write` | Premium replaces the name and complete entry map, HTTP 200 |
+| `DELETE /pronunciation-dictionaries/{id}` | `dictionaries:write` | Deletes an owned dictionary, HTTP 204 |
+
+Create or replace with `{"name":"Studio","entries":{"SQL":"sequel"}}`. A dictionary can have up to 256 mappings, with 200 characters per term or replacement and 120 per name. Lists and individual records include `api_version: "v1"`. After a downgrade, users can still read and delete their own dictionaries. A foreign or unknown UUID returns the same HTTP 404. Missing storage or an unapplied migration returns HTTP 503 with `detail.code=storage_unavailable`. Issue #14 covers applying a saved dictionary during generation.
+
+### Database setup and recovery
+
+Set `VOICE_API_DATABASE_URL` for both Alembic and the hosted process. Use a separate database for the service. The existing read-only entitlement endpoint can operate without database configuration.
+
+For local development, set `VOICE_API_DATABASE_URL=sqlite:////absolute/path/hosted.db` with a writable parent directory and SQLite 3.35 or later. From the repository root, run the migration before starting the listener.
+
+```sh
+uv run alembic -c alembic-hosted.ini upgrade head
+uv run uvicorn --app-dir backend hosted_api:create_app --factory --host 127.0.0.1 --port 3901
+```
+
+For PostgreSQL, set a `postgresql+psycopg://` connection URL through the deployment's secret configuration. Supply the Psycopg 3 driver in the hosted environment for both commands, e.g. with `uv run --with 'psycopg[binary]>=3.2,<4'`. Run one migrator per deployment before starting API replicas. The hosted revision table is `hosted_alembic_version`. Studio continues to run its own migrations.
+
+Before upgrading, make a consistent backup. For SQLite use `sqlite3 /absolute/path/hosted.db ".backup '/absolute/path/hosted-before.db'"`. For PostgreSQL use `pg_dump -Fc -f hosted-before.dump` with libpq connection settings for the hosted database. For an application rollback, stop hosted writes and revert the app first. The entitlement-only version can run with the added tables in place. To undo the first schema revision, `uv run alembic -c alembic-hosted.ini downgrade base` drops every hosted dictionary. Restore saved dictionaries from the backup into a fresh database and verify it before switching the service's database URL.
